@@ -1,0 +1,44 @@
+CSCI3100 Project Meeting No:01
+==============================
+
+Date/Time: TBD
+Location: Discord
+Attendees: Simon, Addison, Shen, Kai, Omar
+Meeting coordinator: Omar
+Note taker: TBD
+
+Agenda:
+-------
+
+1. Introduction
+
+	1.1. Everyone introduce themselves (level of experience, strenghts/weaknesses, etc.)
+
+2. Structure of team meetings
+
+	2.1. Role of the meeting coordinator
+	2.2. Role of the note taker
+
+3. Project topic
+
+	3.1. What kind of product should we develop?
+	3.2. What should be the name of the product?
+
+4. Task delegation
+	
+	4.1. What kind of strategy should we follow to deletage tasks and make decisions?
+	4.2. Are there any tasks we can automate?
+
+5. Discussion/task delegation for requirements specification document
+
+	5.1. Document revision history
+	5.2. Introduction
+	5.3. Assumptions and dependencies
+	5.4. High-level system architecture
+	5.5. Functional requirements
+
+6. Other discussions
+
+	6.1. Next meeting
+
+
