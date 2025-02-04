@@ -1,0 +1,25 @@
+CSCI3100 Project Meeting No:01
+==============================
+
+Date/Time: Feb. 4, 2025, 7:00pm
+Location: Discord
+Attendees: Simon, Addison, Shen, Kai, Omar
+Meeting coordinator: Omar
+Note taker: Shen
+
+Agenda:
+-------
+
+1. Documentation review
+
+	1.1. Introduction (by Kai)
+	1.2. Assumptions and dependencies (by Shen)
+	1.3. High level system architecture (by Addison)
+	1.4. Functional requirements (by Simon)
+
+2. Other discussions
+
+	2.1. Submission of the documentation
+	2.2. Future planning
+	2.3. Next meeting
+
