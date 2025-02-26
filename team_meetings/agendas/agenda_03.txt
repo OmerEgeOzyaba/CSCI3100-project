@@ -1,0 +1,29 @@
+CSCI3100 Project Meeting No:03
+==============================
+
+Date/Time: Feb. 26, 2025, 7:00pm
+Location: Discord
+Attendees: Simon, Addison, Shen, Kai, Omar
+Meeting coordinator: Addison
+Note taker: TBD
+
+Agenda:
+-------
+
+1. Introduction
+
+	1.1. Ensure everyone is on the same page
+
+2. Project topics
+
+	2.1. Design discussion
+	3.2. Implementation discussion
+    3.3. Roadmap and future planning
+
+6. Other discussions
+
+	6.1. Next meeting
+
+
+
+
