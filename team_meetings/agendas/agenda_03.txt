@@ -1,7 +1,7 @@
 CSCI3100 Project Meeting No:03
 ==============================
 
-Date/Time: Feb. 26, 2025, 7:00pm
+Date/Time: Feb. 27, 2025, 7:00pm
 Location: Discord
 Attendees: Simon, Addison, Shen, Kai, Omar
 Meeting coordinator: Addison
@@ -14,15 +14,25 @@ Agenda:
 
 	1.1. Ensure everyone is on the same page
 
-2. Project topics
+2. Design/implementation documentation
 
 	2.1. Design discussion
-	3.2. Implementation discussion
-    3.3. Roadmap and future planning
+	2.2. Implementation discussion
+	2.3. Delegating tasks for the design/implementation documentation
+		2.3.1. Introduction
+		2.3.2. System architecture (high level)
+		2.3.3. Data models
+		2.3.4. Interface design (high level)
+		2.3.5. Component design (low level)
+		2.3.6. User interface design
+		2.3.7. Assumptions
+		2.3.8. UML diagrams
 
-6. Other discussions
+3. Other discussions
 
-	6.1. Next meeting
+    	3.1. Roadmap and future planning
+		3.1.1. Starting coding
+	3.2. Next meeting
 
 
 
