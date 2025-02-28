@@ -1,0 +1,96 @@
+@startuml
+
+	'Brainstorming:
+	'--------------
+
+	'Main classes that are needed:
+	'- User
+		'- username
+		'- password
+		'- groups
+	'- Task
+		'- description
+		'- date
+		'- place
+	'- Group
+		'- admin list
+		'- contributor list
+		'- reader list
+		'- tasks
+	'- Invitation
+		'- from: user
+		'- to: user
+		'- status (accepted, denied, pending)
+	'- AuthService
+
+class User {
+	- id: int
+	- username: string
+	- email: string
+	- password: string
+	- createdAt: DateTime
+	- groups: List<Group>
+	- login()
+	- logout()
+	- register()
+	- updateProfile()
+	- resetPassword()
+	
+}
+
+class Task {
+	- id: int
+	- title: string
+	- description: string
+	- createdAt: DateTime
+	- dueDate: DateTime
+	- place: string
+
+	'NOTE: okay for one to one assignment of task and group
+	'need to change otherwise, but changing would increase
+	'flexibility
+	- assigned_group: Group
+
+	- createTask()
+	- updateTask()
+	- deleteTask()
+	- changeGroup()
+}
+
+class Group {
+	- id: int
+	- admin_list: List<User>
+	- contributor_list: List<User>
+	- reader_list: List<User>
+	- tasks: List<Task>
+	- createGroup()
+	- addMember()
+	- removeMember()
+}
+
+class Invitation {
+	- id: int
+	- groupID: int
+	- inviter: User
+	- invitee: User
+	- invitedAt: DateTime
+	- status: int
+	- sendInvitation()
+	- acceptInvitation()
+	- rejectInvitation()
+}
+
+class AuthService {
+	- authToken: string
+	- authenticateUser()
+	- generateToken()
+	- validateToken()
+	- hashPassword()
+}
+
+User -- Group : "creates/deletes/updates"
+User --> Group: "belongs to"
+User -- Task : "creates/deletes/updates"
+Task --> Group: "belongs to"
+
+@enduml
