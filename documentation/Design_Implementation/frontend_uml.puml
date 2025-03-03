@@ -1,0 +1,46 @@
+@startuml
+actor "User" as user
+
+package "Frontend Application" {
+
+  ' UI Screens
+  component "Login Page" as LoginPage
+  component "Registration Page" as RegistrationPage
+  component "Dashboard" as Dashboard
+  
+  ' Dashboard Sub-Components
+  component "User Profile" as UserProfile
+  component "Task List" as TaskList
+  component "Group List" as GroupList
+  component "Invitation Manager" as InvitationManager
+  component "Notification Center" as NotificationCenter
+  
+  ' Frontend Service Layer (handles API calls to backend)
+  package "Services" {
+    component "AuthService" as FEAuthService
+    component "TaskService" as FETaskService
+    component "GroupService" as FEGroupService
+    component "InvitationService" as FEInvitationService
+    component "NotificationService" as FENotificationService
+  }
+}
+
+' User interactions with pages
+user --> LoginPage : "Login"
+user --> RegistrationPage : "Register"
+user --> Dashboard : "Access Dashboard"
+
+' Dashboard routing to various components
+Dashboard --> UserProfile : "View/Edit Profile"
+Dashboard --> TaskList : "Manage Tasks"
+Dashboard --> GroupList : "Manage Groups"
+Dashboard --> InvitationManager : "Manage Invitations"
+Dashboard --> NotificationCenter : "View Notifications"
+
+' UI components calling frontend services for data/API interactions
+LoginPage --> FEAuthService : "authenticateUser()"
+TaskList --> FETaskService : "fetchTasks()"
+GroupList --> FEGroupService : "fetchGroups()"
+InvitationManager --> FEInvitationService : "fetchInvitations()"
+NotificationCenter --> FENotificationService : "fetchNotifications()"
+@enduml
