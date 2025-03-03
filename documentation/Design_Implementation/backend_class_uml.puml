@@ -1,42 +1,22 @@
 @startuml
 
-	'Brainstorming:
-	'--------------
-
-	'Main classes that are needed:
-	'- User
-		'- username
-		'- password
-		'- groups
-	'- Task
-		'- description
-		'- date
-		'- place
-	'- Group
-		'- admin list
-		'- contributor list
-		'- reader list
-		'- tasks
-	'- Invitation
-		'- from: user
-		'- to: user
-		'- status (accepted, denied, pending)
-	'- AuthService
-
 class User {
 	- id: int
 	- username: string
 	- email: string
 	- password: string
 	- createdAt: DateTime
-	- groups: List<Group>
-	- login()
-	- logout()
-	- register()
-	- updateProfile()
-	- resetPassword()
-	
+'-------------------------------
+	+ updateUsername()
+	+ updateEmail()
+	+ resetPassword()
 }
+
+'class UserService {
+	'+ updateUsername()
+	'+ updateEmail()
+	'+ resetPassword()
+'}
 
 class Task {
 	- id: int
@@ -44,28 +24,50 @@ class Task {
 	- description: string
 	- createdAt: DateTime
 	- dueDate: DateTime
-	- place: string
-
-	'NOTE: okay for one to one assignment of task and group
-	'need to change otherwise, but changing would increase
-	'flexibility
-	- assigned_group: Group
-
-	- createTask()
-	- updateTask()
-	- deleteTask()
-	- changeGroup()
+	- location: string
+'--------------------------------
+	+ createTask()
+	+ updateTitle()
+	+ updateDescription()
+	+ updateDueDate()
+	+ completeTask()
+	+ deleteTask()
 }
+
+'class TaskService {
+	'+ createTask()
+	'+ updateTask()
+	'+ removeTask()
+'}
 
 class Group {
 	- id: int
-	- admin_list: List<User>
-	- contributor_list: List<User>
-	- reader_list: List<User>
-	- tasks: List<Task>
-	- createGroup()
-	- addMember()
-	- removeMember()
+	- name: string
+	- description: string
+	- createdAt: DateTime
+'---------------------------------
+	+ createGroup()
+	+ addMember(user: User, role: Role)
+	' addMember would call assignRole of the GroupMembership class
+	+ removeMember(user:User)
+	+ getMembers(): List<GroupMembership>
+	+ deleteGroup()
+}
+
+'class GroupService {
+	'+ createGroup()
+	'+ addMember(user: User, role: Role)
+	'+ removeMember()
+	'+ deleteGroup()
+'}
+
+class GroupMembership {
+	- user: User
+	- group: Group
+	- role: Role
+	- joinDate: DateTime
+'---------------------------------
+	+ assignRole()
 }
 
 class Invitation {
@@ -74,23 +76,63 @@ class Invitation {
 	- inviter: User
 	- invitee: User
 	- invitedAt: DateTime
-	- status: int
-	- sendInvitation()
-	- acceptInvitation()
-	- rejectInvitation()
+	- status: InvitationStatus
+'---------------------------------
+	+ sendInvitation()
+	+ acceptInvitation()
+	+ rejectInvitation()
 }
 
 class AuthService {
 	- authToken: string
-	- authenticateUser()
-	- generateToken()
-	- validateToken()
-	- hashPassword()
+'---------------------------------
+	+ authenticateUser()
+	+ generateToken()
+	+ validateToken()
+	+ hashPassword()
 }
 
-User -- Group : "creates/deletes/updates"
-User --> Group: "belongs to"
-User -- Task : "creates/deletes/updates"
-Task --> Group: "belongs to"
+' Adding the Notification class requires us to edit the SRS document
+class Notification {
+	- id: int
+	- group: Group
+	- initiator: User
+	- message: string
+	- createdAt: DateTime
+	- status: 
+'---------------------------------
+	
+}
+
+enum Role {
+        Admin
+        Contributor
+        Reader
+}
+
+enum InvitationStatus {
+        SENT
+        ACCEPTED
+        REJECTED
+}
+
+User "1" -- "1..*" GroupMembership
+Group "1" -- "1..*" GroupMembership
+Role -->  GroupMembership: assigned 
+User --> GroupMembership: assigns role
+
+User --> Invitation : sends 
+Invitation --> User : is sent to 
+Invitation --> Group : invites to
+Group "1" -- "1..*" Invitation
+
+Group "1" -- "*" Task : has
+Task "1" -- "1" Group: belongs
+User --> Task : creates 
+
+User --> Group : creates
+
+Invitation --> InvitationStatus: has status
+AuthService --> User: authenticates
 
 @enduml
