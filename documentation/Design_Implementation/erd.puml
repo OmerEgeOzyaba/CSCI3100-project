@@ -1,0 +1,68 @@
+@startuml
+
+entity User {
+  'User has no username, only email
+  'As email is unique, it can be ID
+  * email
+  --
+  * password
+  * created_at
+}
+
+entity Task {
+  * id
+  --
+  * title
+  * created_at
+  * group_id
+  description
+  due_date
+  location
+}
+
+entity Group {
+  * id
+  --
+  * name
+  * created_at
+  description
+}
+
+entity Role {
+  * name
+  --
+  * description
+}
+
+entity Membership {
+  'This design means:
+  'One invitation of a user to a certain group at a time
+  'A user cannot be invited to a group he is part of
+  * member_email
+  * group_id
+  --
+  'If 0 this is an open invitation
+  * accepted 
+  * role_name
+  inviter_email
+  invited_at
+  joined_at
+}
+
+entity SoftwareLicense {
+  * key
+  --
+  * created_at
+  * used_status
+}
+
+'Full membership
+User ||--|{ Membership 
+'Invitation
+User |o--o{ Membership 
+Membership }|--|| Group
+Membership }o--|| Role
+Task }o--|| Group
+
+@enduml
+
