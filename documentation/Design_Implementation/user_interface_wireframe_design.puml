@@ -1,0 +1,61 @@
+@startsalt
+{
+  Title CULink
+
+  // Login Page
+  {^Login Page
+    Login    | "Enter your email"
+    Password | "Enter your password"
+    [Cancel] | [  Login   ]
+  }
+
+  // Home Page
+  {^Home Page
+    [Create Task] | [My Groups] | [View Invites]
+    + Feature 1: Create Tasks/Events
+    + Feature 2: Create/Own Groups
+    + Feature 3: View Invites
+    + Feature 4: Assign Tasks to Groups
+  }
+
+  // Task Creation
+  {^Task Creation
+    Title       | "Task Title"
+    Description | "Task Description"
+    Due Date    | "Select due date"
+    [Create Task] | [Update Task]
+  }
+
+  // View My Tasks
+  {^My Tasks
+    + Task 1: | [Mark as Complete] | [Delete]
+    + Task 2: | [Mark as Complete] | [Delete]
+  }
+
+  // Group Creation
+  {^Group Creation
+    Group Name | "Enter group name"
+    [Create Group] | [Add Member]
+  }
+
+  // User Profile
+  {^User Profile
+    Username      | "YourUsername"
+    Email         | "youremail@example.com"
+    Profile Pic   | "Upload Profile Picture"
+    [Edit Profile] | [Reset Password]
+  }
+
+  // User Groups
+  {^User Groups
+    + Group 1: | [Join Group] | [Leave Group]
+    + Group 2: | [Assign Role] | [View Members]
+  }
+
+  // Group Invitations
+  {^Group Invitations
+    + Invitation from Group A: | [Accept] | [Decline]
+    + Invitation from Group B: | [Accept] | [Decline]
+  }
+}
+@endsalt
