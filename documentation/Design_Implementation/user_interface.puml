@@ -1,0 +1,122 @@
+@startuml
+class Login {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - Title: "Login"
+  - Input Fields: Email, Password
+  - Button: "Login"
+  - Link: "Forgot Password?"
+  Footer
+}
+
+class HomePage {
+  Header
+  - Logo
+  - Navigation Menu (Home, Create Task, My Groups, Invites)
+  Main Content Area
+  - Feature 1: Create Tasks/Events
+    - Button: "Create Task"
+  - Feature 2: Create/Own Groups
+    - Button: "Create Group"
+  - Feature 3: View Invites
+    - List of Invites with Accept/Decline Buttons
+  - Feature 4: Assign Tasks/Events to Groups
+    - Dropdown: Select Group
+    - Button: "Assign Task/Event"
+  Footer
+  - Links to Privacy Policy
+  - Contact Info
+}
+
+class TaskCreation {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - Title: "Create/Update Task"
+  - Input Fields: Title, Description, Due Date
+  - Buttons:
+    - "Create Task"
+    - "Update Title"
+    - "Update Description"
+    - "Update Due Date"
+  Footer
+}
+
+class ViewMyTasks {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - Title: "My Tasks"
+  - List of Tasks
+  - Buttons:
+    - "Mark as Complete"
+    - "Delete Task"
+  Footer
+}
+
+class GroupCreation {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - Title: "Create/Manage Group"
+  - Input Field: Group Name
+  - Buttons:
+    - "Create Group"
+    - "Add Member"
+    - "Assign Role"
+  Footer
+}
+
+class UserProfile {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - User Information
+    - Username
+    - Email
+    - Profile Picture
+  - Buttons:
+    - "Edit Profile"
+      - Options: "Update Username", "Update Email"
+    - "Reset Password"
+  Footer
+}
+
+class UserGroups {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - List of User Groups
+  - Buttons:
+    - "Join Group"
+    - "Leave Group"
+    - "View Group Members"
+    - "Delete Group"
+  Footer
+}
+
+class GroupInvitations {
+  Header
+  - Logo
+  - Navigation Menu
+  Main Content Area
+  - List of Group Invitations
+    - Buttons: "Accept Invitation", "Decline Invitation"
+  Footer
+}
+
+Login --> HomePage : "Login"
+HomePage --> TaskCreation : "Create Task"
+HomePage --> ViewMyTasks : "View My Tasks"
+HomePage --> GroupCreation : "Create Group"
+HomePage --> UserProfile : "View Profile"
+HomePage --> UserGroups : "My Groups"
+HomePage --> GroupInvitations : "View Invites"
+@enduml
