@@ -56,9 +56,9 @@ entity SoftwareLicense {
   * used_status
 }
 
-'Full membership
+'Memberships and Invitations to Groups
 User ||--|{ Membership 
-'Invitation
+'Invatations of other Users
 User |o--o{ Membership 
 Membership }|--|| Group
 Membership }o--|| Role
