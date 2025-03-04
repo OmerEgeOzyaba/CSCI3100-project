@@ -1,0 +1,28 @@
+CSCI3100 Project Meeting No:04
+==============================
+
+Date/Time: Mar. 4, 2025, 7:00pm
+Location: Discord
+Attendees: Simon, Addison, Kai, Omar
+Absentees: Shen
+Meeting coordinator: Omar
+Note taker: TBD
+
+Agenda:
+-------
+
+1. Going over everyone's work/diagrams
+
+	1.1. ERD - Simon
+	1.2. UI design - Kai
+	1.3. Frontend UML - Addison
+	1.4. Backend UML - Omar
+	1.5. Interface & component design - Shen
+
+2. Planning until March 7
+
+	2.1. Task redistribution
+	2.2. Putting everything together
+	2.3. Putting deadlines
+	2.4. Next meeting
+
