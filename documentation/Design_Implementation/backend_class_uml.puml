@@ -1,6 +1,6 @@
 @startuml
 
-class User {
+class Account {
 	- id: int
 	- username: string
 	- email: string
@@ -9,14 +9,17 @@ class User {
 '-------------------------------
 	+ updateUsername()
 	+ updateEmail()
-	+ resetPassword()
+	+ updatePassword()
 }
 
-'class UserService {
-	'+ updateUsername()
-	'+ updateEmail()
-	'+ resetPassword()
-'}
+class AccountService {
+	+ login()
+	+ logout()
+	+ createAccount()
+        + updateUsername()
+        + updateEmail()
+        + resetPassword()
+}
 
 class Task {
 	- id: int
@@ -26,19 +29,18 @@ class Task {
 	- dueDate: DateTime
 	- location: string
 '--------------------------------
-	+ createTask()
 	+ updateTitle()
 	+ updateDescription()
 	+ updateDueDate()
-	+ completeTask()
-	+ deleteTask()
+	+ updateLocation()
 }
 
-'class TaskService {
-	'+ createTask()
-	'+ updateTask()
-	'+ removeTask()
-'}
+class TaskService {
+        + createTask()
+        + updateTask()
+        + completeTask()
+        + deleteTask()
+}
 
 class Group {
 	- id: int
@@ -46,23 +48,21 @@ class Group {
 	- description: string
 	- createdAt: DateTime
 '---------------------------------
+	+ updateName()
+	+ updateDescription()
+}
+
+class GroupService {
 	+ createGroup()
-	+ addMember(user: User, role: Role)
-	' addMember would call assignRole of the GroupMembership class
-	+ removeMember(user:User)
+	+ updateGroup()
+	+ addMember(user: Account, role: Role)
+	+ removeMember()
 	+ getMembers(): List<GroupMembership>
 	+ deleteGroup()
 }
 
-'class GroupService {
-	'+ createGroup()
-	'+ addMember(user: User, role: Role)
-	'+ removeMember()
-	'+ deleteGroup()
-'}
-
 class GroupMembership {
-	- user: User
+	- user: Account
 	- group: Group
 	- role: Role
 	- joinDate: DateTime
@@ -73,11 +73,15 @@ class GroupMembership {
 class Invitation {
 	- id: int
 	- groupID: int
-	- inviter: User
-	- invitee: User
+	- inviter: Account
+	- invitee: Account
 	- invitedAt: DateTime
 	- status: InvitationStatus
 '---------------------------------
+	+ updateStatus()
+}
+
+class InvitationService {
 	+ sendInvitation()
 	+ acceptInvitation()
 	+ rejectInvitation()
@@ -86,22 +90,10 @@ class Invitation {
 class AuthService {
 	- authToken: string
 '---------------------------------
-	+ authenticateUser()
+	+ authenticateAccount()
 	+ generateToken()
 	+ validateToken()
 	+ hashPassword()
-}
-
-' Adding the Notification class requires us to edit the SRS document
-class Notification {
-	- id: int
-	- group: Group
-	- initiator: User
-	- message: string
-	- createdAt: DateTime
-	- status: 
-'---------------------------------
-	
 }
 
 enum Role {
@@ -116,23 +108,23 @@ enum InvitationStatus {
         REJECTED
 }
 
-User "1" -- "1..*" GroupMembership
+Account "1" -- "1..*" GroupMembership
 Group "1" -- "1..*" GroupMembership
 Role -->  GroupMembership: assigned 
-User --> GroupMembership: assigns role
+Account --> GroupMembership: assigns role
 
-User --> Invitation : sends 
-Invitation --> User : is sent to 
+Account --> Invitation : sends 
+Invitation --> Account : is sent to 
 Invitation --> Group : invites to
 Group "1" -- "1..*" Invitation
 
 Group "1" -- "*" Task : has
 Task "1" -- "1" Group: belongs
-User --> Task : creates 
+Account --> Task : creates 
 
-User --> Group : creates
+Account --> Group : creates
 
 Invitation --> InvitationStatus: has status
-AuthService --> User: authenticates
+AuthService --> Account: authenticates
 
 @enduml

@@ -1,0 +1,33 @@
+Design considerations/reasoning:
+================================
+
+Classes and their purposes:
+---------------------------
+
+We have two choices for the design of the backend:
+	1. Since this is a small application where business logic is relatively straightforward, we could avoid using service classes and increase complexity. Instead, each primary class can contains the methods to interract with the API.
+	2. To respect modularity and separation of concerns, each primary class can have service classes which can handle the interaction with the API. This makes the system easier to test since service classes isolate the interaction with external systems. 
+
+The current design of the system is according to the 2nd option.
+
+- Account: Holds/updates data about a user
+- AccountService: 
+	- Holds business logic for user management
+	- Handles interactions with the API
+- Task: Holds/updates data about a Task object
+- TaskService:
+	- Holds business logic for task management
+	- Handles interactions with the API
+- Group: Holds/updates data about a Group object
+- GroupService:
+        - Holds business logic for group management
+        - Handles interactions with the API
+- GroupMembership: Defines the role of an account in a group
+- Invitation: Holds data about an Invitation object
+- InvitationService:
+        - Holds business logic for invitation management
+        - Handles interactions with the API
+- AuthService:
+	- Authenticates account
+	- Handles interactions with the API
+
