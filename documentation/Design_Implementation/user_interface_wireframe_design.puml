@@ -50,8 +50,8 @@
 
   // User Groups
   {^User Groups
-    + Group 1: | [Join Group] | [Leave Group]
-    + Group 2: | [Assign Role] | [View Members]
+    + Group 1: | [View Members] | [Leave Group]
+    + Group 2: | [View Members] | [Leave Group]
   }
 
   // Group Invitations
