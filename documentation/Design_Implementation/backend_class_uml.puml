@@ -1,7 +1,6 @@
 @startuml
 
-class Account {
-	- id: int
+class User {
 	- username: string
 	- email: string
 	- password: string
@@ -12,12 +11,11 @@ class Account {
 	+ updatePassword()
 }
 
-class AccountService {
-	+ login()
-	+ logout()
-	+ createAccount()
+class UserService {
+        + createUser()
         + updateUsername()
         + updateEmail()
+        + updatePassword()
         + resetPassword()
 }
 
@@ -27,12 +25,12 @@ class Task {
 	- description: string
 	- createdAt: DateTime
 	- dueDate: DateTime
-	- location: string
+	- status: boolean
 '--------------------------------
 	+ updateTitle()
 	+ updateDescription()
 	+ updateDueDate()
-	+ updateLocation()
+	+ updateStatus()
 }
 
 class TaskService {
@@ -47,6 +45,7 @@ class Group {
 	- name: string
 	- description: string
 	- createdAt: DateTime
+	- tasks: List<Task>
 '---------------------------------
 	+ updateName()
 	+ updateDescription()
@@ -55,33 +54,27 @@ class Group {
 class GroupService {
 	+ createGroup()
 	+ updateGroup()
-	+ addMember(user: Account, role: Role)
+	+ addMember(user: User, role: Role)
 	+ removeMember()
-	+ getMembers(): List<GroupMembership>
+	+ getMembers(): List<Membership>
 	+ deleteGroup()
 }
 
-class GroupMembership {
-	- user: Account
+class Membership {
+	- id: int
+	- user: User
 	- group: Group
 	- role: Role
-	- joinDate: DateTime
-'---------------------------------
-	+ assignRole()
-}
-
-class Invitation {
-	- id: int
-	- groupID: int
-	- inviter: Account
-	- invitee: Account
-	- invitedAt: DateTime
+	- inviterEmail: string
+	- inviteDate: DateTime
 	- status: InvitationStatus
+	- joinDate: DateTime
 '---------------------------------
 	+ updateStatus()
 }
 
-class InvitationService {
+class MembershipService {
+	+ createMembership()
 	+ sendInvitation()
 	+ acceptInvitation()
 	+ rejectInvitation()
@@ -90,10 +83,13 @@ class InvitationService {
 class AuthService {
 	- authToken: string
 '---------------------------------
-	+ authenticateAccount()
+	+ login()
+	+ logout()
+	+ authenticateUser()
 	+ generateToken()
 	+ validateToken()
 	+ hashPassword()
+	+ enforcePasswordPolicy()
 }
 
 enum Role {
@@ -108,23 +104,22 @@ enum InvitationStatus {
         REJECTED
 }
 
-Account "1" -- "1..*" GroupMembership
-Group "1" -- "1..*" GroupMembership
-Role -->  GroupMembership: assigned 
-Account --> GroupMembership: assigns role
+User --> TaskService: creates Task via
+User --> GroupService: creates Group via
+User --> MembershipService: creates Membership via
+User "1" *-- "*" Membership: has
+AuthService --> User: authenticates
+UserService --> User: manages
 
-Account --> Invitation : sends 
-Invitation --> Account : is sent to 
-Invitation --> Group : invites to
-Group "1" -- "1..*" Invitation
+TaskService --> Task: manages
+Task "*" -- "1" Group: belongs to
 
-Group "1" -- "*" Task : has
-Task "1" -- "1" Group: belongs
-Account --> Task : creates 
+GroupService --> Group: manages
+Group "1" *-- "1..*" Membership: has
+Group "1" *-- "*" Task: has
 
-Account --> Group : creates
-
-Invitation --> InvitationStatus: has status
-AuthService --> Account: authenticates
+MembershipService --> Membership: manages
+Role --> Membership: assigned
+InvitationStatus --> Membership: assigned
 
 @enduml
