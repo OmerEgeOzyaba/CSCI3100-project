@@ -2,6 +2,13 @@
 {
   Title CULink
 
+  // Account Creation Page
+    {^Account Creation Page
+      Email    | "Enter your email"
+      Password | "Set your password"
+      [Cancel] | [  Create   ]
+    }
+
   // Login Page
   {^Login Page
     Login    | "Enter your email"
@@ -12,10 +19,11 @@
   // Home Page
   {^Home Page
     [Create Task] | [My Groups] | [View Invites]
-    + Feature 1: Create Tasks/Events
+    + Feature 1: Create Tasks
     + Feature 2: Create/Own Groups
     + Feature 3: View Invites
     + Feature 4: Assign Tasks to Groups
+    + Feature 5: View Tasks
   }
 
   // Task Creation
@@ -24,12 +32,6 @@
     Description | "Task Description"
     Due Date    | "Select due date"
     [Create Task] | [Update Task]
-  }
-
-  // View My Tasks
-  {^My Tasks
-    + Task 1: | [Mark as Complete] | [Delete]
-    + Task 2: | [Mark as Complete] | [Delete]
   }
 
   // Group Creation
