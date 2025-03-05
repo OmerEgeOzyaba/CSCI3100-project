@@ -1,4 +1,15 @@
 @startuml
+'General ERD explanation
+'An entity is a Table in the DB (think of an Excel table)
+'Everything before the -- is the Primary Key, so a UID for an entry (Each user is identified by its email, no email twice)
+'If an attribute starts with a *, its mandatory
+'If not, its optional
+
+'||- means exactly one
+'|o- means zero or one
+'}|- means one or more
+'}o- means zero or more
+'User ||--|{ Membership: This means a Membership entry has exactly one user, and a user has at least one Membership
 
 entity User {
   'User has no username, only email
@@ -10,11 +21,13 @@ entity User {
 }
 
 entity Task {
+  'Task has no unique property, so we generate an ID
   * id
   --
   * title
   * created_at
   * group_id
+  * completed
   description
   due_date
   location
@@ -28,21 +41,31 @@ entity Group {
   description
 }
 
+'Contributer, admin, etc...
 entity Role {
   * name
   --
   * description
 }
 
+entity InvitationStatus {
+  * name
+  --
+  * description
+}
+
+'Membership if accepted -> TRUE, Invitation if accpeted -> FALSE (so not accepted yet)
+'By combining with Invitation, we make sure that a member_email and group_id combination is unique over the whole DB:
+'So an invite is not possible if already member
+'So an invite is not possivle if already an invite pending
+'When invite accpeted -> just change accepted value
+'When invite declined -> delete whole entry
+'Inviter can be empty for the default group
 entity Membership {
-  'This design means:
-  'One invitation of a user to a certain group at a time
-  'A user cannot be invited to a group he is part of
   * member_email
   * group_id
   --
-  'If 0 this is an open invitation
-  * accepted 
+  * invitation_status
   * role_name
   inviter_email
   invited_at
@@ -56,13 +79,10 @@ entity SoftwareLicense {
   * used_status
 }
 
-'Memberships and Invitations to Groups
-User ||--|{ Membership 
-'Invatations of other Users
-User |o--o{ Membership 
+User |o--o{ Membership : inviter
+User ||--o{ Membership  : member
 Membership }|--|| Group
 Membership }o--|| Role
+Membership }o--|| InvitationStatus
 Task }o--|| Group
-
 @enduml
-
