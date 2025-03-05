@@ -1,4 +1,14 @@
 @startuml
+class CreateAccount {
+  Header
+  - Logo
+  Main Content Area
+  - Title: "Create New Account"
+  - Input Fields: Email, Password
+  - Button: "Create Account"
+  Footer
+}
+
 class Login {
   Header
   - Logo
@@ -16,7 +26,7 @@ class HomePage {
   - Logo
   - Navigation Menu (Home, Create Task, My Groups, Invites)
   Main Content Area
-  - Feature 1: Create Tasks/Events
+  - Feature 1: Create Tasks
     - Button: "Create Task"
   - Feature 2: Create/Own Groups
     - Button: "Create Group"
@@ -25,6 +35,8 @@ class HomePage {
   - Feature 4: Assign Tasks/Events to Groups
     - Dropdown: Select Group
     - Button: "Assign Task/Event"
+  - Feature 5: View Tasks
+    - Search Bar: "Search For Task" (with filter functionality)
   Footer
   - Links to Privacy Policy
   - Contact Info
@@ -42,19 +54,6 @@ class TaskCreation {
     - "Update Title"
     - "Update Description"
     - "Update Due Date"
-  Footer
-}
-
-class ViewMyTasks {
-  Header
-  - Logo
-  - Navigation Menu
-  Main Content Area
-  - Title: "My Tasks"
-  - List of Tasks
-  - Buttons:
-    - "Mark as Complete"
-    - "Delete Task"
   Footer
 }
 
@@ -95,10 +94,8 @@ class UserGroups {
   Main Content Area
   - List of User Groups
   - Buttons:
-    - "Join Group"
     - "Leave Group"
     - "View Group Members"
-    - "Delete Group"
   Footer
 }
 
@@ -114,7 +111,6 @@ class GroupInvitations {
 
 Login --> HomePage : "Login"
 HomePage --> TaskCreation : "Create Task"
-HomePage --> ViewMyTasks : "View My Tasks"
 HomePage --> GroupCreation : "Create Group"
 HomePage --> UserProfile : "View Profile"
 HomePage --> UserGroups : "My Groups"
