@@ -32,9 +32,9 @@ class HomePage {
     - Button: "Create Group"
   - Feature 3: View Invites
     - List of Invites with Accept/Decline Buttons
-  - Feature 4: Assign Tasks/Events to Groups
+  - Feature 4: Assign Tasks to Groups
     - Dropdown: Select Group
-    - Button: "Assign Task/Event"
+    - Button: "Assign Task"
   - Feature 5: View Tasks
     - Search Bar: "Search For Task" (with filter functionality)
   Footer
