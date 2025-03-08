@@ -1,19 +1,16 @@
 @startuml
 
 class User {
-	- username: string
 	- email: string
 	- password: string
 	- createdAt: DateTime
 '-------------------------------
-	+ updateUsername()
 	+ updateEmail()
 	+ updatePassword()
 }
 
 class UserService {
         + createUser()
-        + updateUsername()
         + updateEmail()
         + updatePassword()
         + resetPassword()
@@ -23,6 +20,7 @@ class Task {
 	- id: int
 	- title: string
 	- description: string
+	- groupID: int
 	- createdAt: DateTime
 	- dueDate: DateTime
 	- status: boolean
@@ -38,6 +36,7 @@ class TaskService {
         + updateTask()
         + completeTask()
         + deleteTask()
+	+ getTasksByGroup(groupID: int): List<Task>
 }
 
 class Group {
@@ -45,7 +44,6 @@ class Group {
 	- name: string
 	- description: string
 	- createdAt: DateTime
-	- tasks: List<Task>
 '---------------------------------
 	+ updateName()
 	+ updateDescription()
@@ -54,14 +52,10 @@ class Group {
 class GroupService {
 	+ createGroup()
 	+ updateGroup()
-	+ addMember(user: User, role: Role)
-	+ removeMember()
-	+ getMembers(): List<Membership>
 	+ deleteGroup()
 }
 
 class Membership {
-	- id: int
 	- user: User
 	- group: Group
 	- role: Role
@@ -78,6 +72,8 @@ class MembershipService {
 	+ sendInvitation()
 	+ acceptInvitation()
 	+ rejectInvitation()
+        + getMembersByGroup(group: Group): List<Membership>
+
 }
 
 class AuthService {
@@ -90,6 +86,24 @@ class AuthService {
 	+ validateToken()
 	+ hashPassword()
 	+ enforcePasswordPolicy()
+}
+
+class SoftwareLicense {
+	- key: string
+	- createdAt: DateTime
+	- assignedTo: string
+		' assigned to the email address of a user
+	- usedStatus: int
+'---------------------------------
+	+ createLicense(userEmail: string)
+	+ validateLicense(key: string)
+	+ updateLicenseStatus()
+}
+
+class SoftwareLicenseService {
+	+ saveLicense()
+	+ updateLicenseStatus()
+	+ getLicense()
 }
 
 enum Role {
@@ -121,5 +135,9 @@ Group "1" *-- "*" Task: has
 MembershipService --> Membership: manages
 Role --> Membership: assigned
 InvitationStatus --> Membership: assigned
+
+SoftwareLicense "1" o-- "1" User: assigned to 
+UserService --> SoftwareLicense: creates User via
+SoftwareLicenseService --> SoftwareLicense: manages
 
 @enduml
