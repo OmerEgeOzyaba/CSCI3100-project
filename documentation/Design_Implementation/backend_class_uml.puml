@@ -14,6 +14,7 @@ class UserService {
         + updateEmail()
         + updatePassword()
         + resetPassword()
+	+ enforcePasswordPolicy()
 }
 
 class Task {
@@ -85,7 +86,6 @@ class AuthService {
 	+ generateToken()
 	+ validateToken()
 	+ hashPassword()
-	+ enforcePasswordPolicy()
 }
 
 class SoftwareLicense {
