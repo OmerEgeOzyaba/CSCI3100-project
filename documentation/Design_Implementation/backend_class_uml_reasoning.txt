@@ -1,33 +1,77 @@
 Design considerations/reasoning:
 ================================
 
-Classes and their purposes:
----------------------------
+Classes/enumerations and their purposes:
+----------------------------------------
 
-We have two choices for the design of the backend:
-	1. Since this is a small application where business logic is relatively straightforward, we could avoid using service classes and increase complexity. Instead, each primary class can contains the methods to interract with the API.
-	2. To respect modularity and separation of concerns, each primary class can have service classes which can handle the interaction with the API. This makes the system easier to test since service classes isolate the interaction with external systems. 
+User:
+- Represents a user in the system, identified by their unique email
+- Holds user credentials (email, password) and information about user creation
 
-The current design of the system is according to the 2nd option.
+UserService:
+- Manages operations related to users, such as creating users, updating their emails, and updating/resetting their passwords, enforcing password policy for security
+- Interacts with the database
 
-- Account: Holds/updates data about a user
-- AccountService: 
-	- Holds business logic for user management
-	- Handles interactions with the API
-- Task: Holds/updates data about a Task object
-- TaskService:
-	- Holds business logic for task management
-	- Handles interactions with the API
-- Group: Holds/updates data about a Group object
-- GroupService:
-        - Holds business logic for group management
-        - Handles interactions with the API
-- GroupMembership: Defines the role of an account in a group
-- Invitation: Holds data about an Invitation object
-- InvitationService:
-        - Holds business logic for invitation management
-        - Handles interactions with the API
-- AuthService:
-	- Authenticates account
-	- Handles interactions with the API
+Task:
+- Represents a task in the system
+- Has properties like title, description, due date, status, and the group ID the task is assigned to
+
+TaskService:
+- Manages tasks in the system
+- Interacts with the database to create tasks, update them, mark them as completed/deleted, retrieve them by the group they're assigned to
+
+Group:
+- Represents a group in the system
+- Each group has a name, description, and creation date
+
+GroupService:
+- Manages groups in the system, creating them, updating, and deleting them
+- Interacts with the database
+
+Membership:
+- Represents the membership of a user in a group
+- Tracks the user's role, invitation status, who invited them, when they were invited and when they joined
+
+MembershipService:
+- Manages memberships in the system, including sending invitations, accepting/rejecting invitations, retreiving memberships by group, addition/removal of users to/from groups
+- Interacts with the database
+
+AuthService:
+- Manages user authentication
+- Handles login, logout, token generation, validation, password hashing
+- Interacts with the database
+
+SoftwareLicense:
+- Represents a software license in the system
+- Contains unique license key, email of the user it's assigned to, its creation date, and its usage status
+
+SoftwareLicenseService:
+- Manages software licenses in the system
+- Handles saving new licenses to the database, updating usage status, and retreiving licenses
+- Interacts with the database
+
+Role (enumeration):
+- Defines possible roles a user can have in a group
+- Each role comes with special permissions
+
+InvitationStatus (enumeration):
+- Defines possible statuses of an invitation
+- Determines the membership of a user in a group
+
+Design considerations:
+----------------------
+
+- Separation of Concerns principle is respected by dividing responsibility between primary classes and service classes. While the primary classes are responsible for implementing business logic about objects in the system, service classes are tasked with data persistence.
+- Scalability and extensibility is considered by dividing TaskService and GroupService. Tasks and groups can be focused on independetly, which allows adding new features like task notifications without affecting the other services.
+- MembershipService is seperated from Group and User classes for managing users' roles and statuses within different groups. It separates membership-related logic, allowing for flexible role assignment and status tracking.
+- Password policy enforcement in UserService provides necessary security to prevent weak passwords.
+- The use of enums for user roles and invitation statuses allow for better maintainability, as any new role or status additions can be easily handled by modifying the enums. This also prevents hardcoding in the codebase.
+- Service classes are modular which means new features can be added to the system wthout large-scale changes.
+- Each class encapsulates a specigic set of responsibilities which make the system more maintainable.
+
+Possible improvements:
+----------------------
+
+- For performance reasons, consider implementing caching strategies for frequently queried data.
+- Querying tasks for a group can become performance-heavy as the application grows. Efficient indexing and caching will improve scalability.
 
