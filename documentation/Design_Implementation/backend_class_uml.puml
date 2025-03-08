@@ -91,8 +91,6 @@ class AuthService {
 class SoftwareLicense {
 	- key: string
 	- createdAt: DateTime
-	- assignedTo: string
-		' assigned to the email address of a user
 	- usedStatus: int
 '---------------------------------
 	+ createLicense(userEmail: string)
@@ -136,7 +134,6 @@ MembershipService --> Membership: manages
 Role --> Membership: assigned
 InvitationStatus --> Membership: assigned
 
-SoftwareLicense "1" o-- "1" User: assigned to 
 UserService --> SoftwareLicense: creates User via
 SoftwareLicenseService --> SoftwareLicense: manages
 

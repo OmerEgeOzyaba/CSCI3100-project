@@ -43,7 +43,7 @@ AuthService:
 
 SoftwareLicense:
 - Represents a software license in the system
-- Contains unique license key, email of the user it's assigned to, its creation date, and its usage status
+- Contains unique license key, its creation date, and its usage status
 
 SoftwareLicenseService:
 - Manages software licenses in the system
