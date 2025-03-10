@@ -5,6 +5,7 @@ class CreateAccount {
   Main Content Area
   - Title: "Create New Account"
   - Input Fields: Email, Password
+  - License confirmation from user
   - Button: "Create Account"
   Footer
 }
