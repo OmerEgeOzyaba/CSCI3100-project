@@ -11,9 +11,9 @@ Note taker: Kai
 Agenda:
 -------
 
-1. Taking a look at the next deadlines
-2. Simon explains the Trello board
-3. Discuss proposed changes
-4. Split tasks for phase 1 "Introduction" and phase 2 "Structure"
-5. Discuss next internal deadlines
-6. Discuss next internal meeting date
+1. Taking a look at the next deadlines - 18:10
+2. Simon explains the Trello board - 18:20
+3. Discuss proposed changes - 18:30
+4. Split tasks for phase 1 "Introduction" and phase 2 "Structure" - 18:45
+5. Discuss next internal deadlines - 18:55
+6. Discuss next internal meeting date - 19:00
