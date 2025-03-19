@@ -1,0 +1,19 @@
+CSCI3100 Project Meeting No:05
+==============================
+
+Date/Time: Mar. 19, 2025, 6:00pm
+Location: Discord
+Attendees: Simon, Addison, Kai, Omar
+Absentees: Shen
+Meeting coordinator: Simon
+Note taker: Kai
+
+Agenda:
+-------
+
+1. Taking a look at the next deadlines
+2. Simon explains the Trello board
+3. Discuss proposed changes
+4. Split tasks for phase 1 "Introduction" and phase 2 "Structure"
+5. Discuss next internal deadlines
+6. Discuss next internal meeting date
