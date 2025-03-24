@@ -3,111 +3,111 @@
 class User {
 	- email: string
 	- password: string
-	- createdAt: DateTime
+	- created_at: DateTime
 '-------------------------------
-	+ updateEmail()
-	+ updatePassword()
+	+ update_email()
+	+ update_password()
 }
 
 class UserService {
-        + createUser()
-        + updateEmail()
-        + updatePassword()
-        + resetPassword()
-	+ enforcePasswordPolicy()
+        + create_user()
+        + update_email()
+        + update_password()
+        + reset_password()
+	+ enforce_password_policy()
 }
 
 class Task {
 	- id: int
 	- title: string
 	- description: string
-	- groupID: int
-	- createdAt: DateTime
-	- dueDate: DateTime
+	- group_id: int
+	- created_at: DateTime
+	- due_date: DateTime
 	- status: boolean
 '--------------------------------
-	+ updateTitle()
-	+ updateDescription()
-	+ updateDueDate()
-	+ updateStatus()
+	+ update_title()
+	+ update_description()
+	+ update_due_date()
+	+ update_status()
 }
 
 class TaskService {
-        + createTask()
-        + updateTask()
-        + completeTask()
-        + deleteTask()
-	+ getTasksByGroup(groupID: int): List<Task>
+        + create_task()
+        + update_task()
+        + complete_task()
+        + delete_task()
+	+ get_tasks_by_group(group_id: int): List<Task>
 }
 
 class Group {
 	- id: int
 	- name: string
 	- description: string
-	- createdAt: DateTime
+	- created_at: DateTime
 '---------------------------------
-	+ updateName()
-	+ updateDescription()
+	+ update_name()
+	+ update_description()
 }
 
 class GroupService {
-	+ createGroup()
-	+ updateGroup()
-	+ deleteGroup()
+	+ create_group()
+	+ update_group()
+	+ delete_group()
 }
 
 class Membership {
 	- user: User
 	- group: Group
 	- role: Role
-	- inviterEmail: string
-	- inviteDate: DateTime
+	- inviter_email: string
+	- invite_date: DateTime
 	- status: InvitationStatus
-	- joinDate: DateTime
+	- join_date: DateTime
 '---------------------------------
-	+ updateStatus()
+	+ update_status()
 }
 
 class MembershipService {
-	+ createMembership()
-	+ sendInvitation()
-	+ acceptInvitation()
-	+ rejectInvitation()
-        + getMembersByGroup(group: Group): List<Membership>
+	+ create_membership()
+	+ send_invitation()
+	+ accept_invitation()
+	+ reject_invitation()
+        + get_members_by_group(group: Group): List<Membership>
 
 }
 
 class AuthService {
-	- authToken: string
+	- auth_token: string
 '---------------------------------
 	+ login()
 	+ logout()
-	+ authenticateUser()
-	+ generateToken()
-	+ validateToken()
-	+ hashPassword()
+	+ authenticate_user()
+	+ generate_token()
+	+ validate_token()
+	+ hash_password()
 }
 
 class SoftwareLicense {
 	- key: string
-	- createdAt: DateTime
-	- usedStatus: int
+	- created_at: DateTime
+	- used_status: int
 '---------------------------------
-	+ createLicense(userEmail: string)
-	+ validateLicense(key: string)
-	+ updateLicenseStatus()
+	+ create_license(userEmail: string)
+	+ validate_license(key: string)
+	+ update_license_status()
 }
 
 class SoftwareLicenseService {
-	+ saveLicense()
-	+ updateLicenseStatus()
-	+ getLicense()
+	+ save_license()
+	+ update_licenseStatus()
+	+ get_license()
 }
 
 enum Role {
-        Admin
-        Contributor
-        Reader
+        ADMIN
+        CONTRIBUTOR
+        READER
 }
 
 enum InvitationStatus {
