@@ -5,6 +5,7 @@ __pycache__/
 # Virtual environments
 venv/
 *.env
+coding/middleware/middleware_venv/
 
 # Flask application
 instance/
