@@ -1,0 +1,25 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+*.env
+
+# Flask application
+instance/
+*.db
+
+# Logs
+*.log
+
+# Environment variable files
+.env
+
+# Node.js
+node_modules/
+
+# Operating system files (e.g., macOS, Windows)
+.DS_Store
+Thumbs.db
+
