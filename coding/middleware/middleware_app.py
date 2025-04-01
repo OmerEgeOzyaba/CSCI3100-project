@@ -1,4 +1,12 @@
 from flask import Flask, jsonify
+from dotenv import load_dotenv
+from middleware_data_classes import create_database
+
+# loads properties.env
+load_dotenv()
+
+# create database
+create_database()
 
 app = Flask(__name__)
 
