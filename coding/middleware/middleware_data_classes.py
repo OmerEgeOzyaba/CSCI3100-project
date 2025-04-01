@@ -127,12 +127,12 @@ class Group(Base):
     def get_memberships(self):
         return self.memberships
 
-class Role(Enum): # TODO
+class Role(Enum):
     ADMIN = "admin"
     CONTRIBUTOR = "contributor"
     READER = "reader"
 
-class InvitationStatus(Enum): # TODO
+class InvitationStatus(Enum):
     SENT = "sent"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
