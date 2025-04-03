@@ -6,6 +6,8 @@ import os
 import secrets
 from datetime import timedelta
 import sys
+from werkzeug.security import generate_password_hash, check_password_hash
+import redis
 
 # loads properties.env
 load_dotenv()
@@ -36,13 +38,66 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15) # expiration for 
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7) # expiration for long-lived JWTs
 jwt = JWTManager(app) # initialize JWT
 
-# mock user database
-users = {"test@example.com":{"password":"password123", "global_roles":["user"]},
-         "admin@example.com":{"password":"admin123", "global_roles":["super_admin","user"]}}
+# configure redis [FOR LOGOUT]
+# TODO: might wanna change this to strict loading like JWT configuration (i.e. including configuration values in .env)
+# TODO: commented everything Redis related out for now, decide on what to do based on team discussion
+#redis_client = redis.Redis(
+        #host = os.getenv("REDIS_HOST", "localhost"),
+        #port = int(os.getenv("REDIS_PORT", 6379)),
+        #db = int(os.getenv("REDIS_DB", 0)),
+        #decode_responses = True
+        #)
+
+#try: 
+    #redis_client.ping()
+    #print("Redis connection successful")
+#except redis.ConnectionError:
+    #print("Redis connection failed - check if Redis server is running")
+    #sys.exit(1)
+
+# blacklist checker [FOR LOGOUT]
+#@jwt.token_in_blocklist_loader
+#def check_if_token_revoked(jwt_header, jwt_payload):
+    #jti = jwt_payload["jti"]
+    #return redis_client.exists(jti)
+
+# dummy user database
+# TODO: Instead of this, configure the real database
+users = {"test@example.com":{"password": generate_password_hash("password123"), "global_roles":["user"]},
+         "admin@example.com":{"password": generate_password_hash("admin123"), "global_roles":["super_admin","user"]}}
+
+#=========================================================================
+# global error handlers [FOR UNEXPECTED ERRORS]
+@app.errorhandler(400)
+def handle_bad_request(error):
+    return jsonify({"error": "Bad request"}), 400
+
+@app.errorhandler(404)
+def handle_not_found(error):
+    return jsonify({"error": "Endpoint not found"}), 404
+
+@app.errorhandler(500)
+def handle_server_error(error):
+    return jsonify({"error": "Internal server error"}), 500
+
+#=========================================================================
+# redis error handling
+#@jwt.revoked_token_loader
+#def handle_revoked_token(jwt_header, jwt_payload):
+    #return jsonify({"error": "Token has been revoked"}), 401
+
+#@jwt.invalid_token_loader
+#def handle_invalid_token(error):
+    #return jsonify({"error": "Invalid token"}), 401
+
+#========================================================================= 
 
 # login endpoint
-@app.route('/login', methods=['POST'])
+@app.route('/api/auth/login', methods=['POST'])
 def login():
+    if not request.is_json:
+        return {"error": "Request must be JSON"}, 400
+
     email = request.json.get("email")
     password = request.json.get("password")
 
@@ -50,39 +105,72 @@ def login():
         return {"error": "Missing email/password"}, 400
 
     user = users.get(email)
-    if not user or user["password"] != password:
+    if not user or not check_password_hash(user["password"], password):
         return {"error": "Bad credentials"}, 401
 
     # token generation
     access_token = create_access_token(identity=email, additional_claims={"global_roles": user["global_roles"]})
     # TODO: Database team to add is_super_admin column (to identify system admins who are kinda like super users)
+    # TODO: Used global_roles to make sure it isnt confused by group-specific roles in the future, if this won't 
+    #       be an issue, replace all occurances of "global_roles" by "roles" as specified in documentation, otherwise
+    #       update documentation, also change "super_admin" to "admin" depending on team decision
     refresh_token = create_refresh_token(identity=email)
 
-    return {
+    return jsonify({
             "access_token": access_token,
             "refresh_token": refresh_token,
             "user": {"email": email, "global_roles": user["global_roles"]}
-            }
+            }), 200
 
-# refresh endpoint
-@app.route('/refresh', methods=['POST'])
+# logout endpoint
+# TODO: For delevopment purposes, no need to use Redis, commented out parts that use Redis.
+#       decide on what to do based on team discussion.
+@app.route('/api/auth/logout', methods=['DELETE'])
+@jwt_required()
+def logout():
+    # jti = get_jwt()["jti"]
+    # redis_client.set(jti, "revoked", ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"]) # TODO: change here if team decided to exclude refreshing
+    return jsonify({"msg": "Logout successful"}), 200
+
+# validate token endpoint
+@app.route('/api/auth/validate-token', methods=['GET'])
+@jwt_required()
+def validate_token():
+    return jsonify({
+        "valid": True,
+        "user": get_jwt_identity(),
+        "global_roles": get_jwt().get("global_roles", [])
+        }), 200
+
+#=========================================================================
+# refresh endpoint [NOT SPECIFIED IN DOCUMENTATION BUT GOOD SECURITY PRACTICE]
+# TODO: Either remove this endpoint and only generate long-lasting access tokens
+#       or add this endpoint to the documentation
+@app.route('/api/auth/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    identity = get_jwt_identity()
-    claims = get_jwt()
-    new_token = create_access_token(identity=identity, additional_claims={"global_roles": claims.get("global_roles", [])})
-    return {"access_token": new_token}
+    try:
+        identity = get_jwt_identity()
+        claims = get_jwt()
+        new_token = create_access_token(identity=identity, additional_claims={"global_roles": claims.get("global_roles", [])})
+        return jsonify({"access_token": new_token}), 200
+    except Exception as e:
+        return jsonify({"error": "Token refresh failed"}), 500
 
-# protected endpoints
+#=========================================================================
+
+#=========================================================================
+# protected endpoints [FOR DEVELOPING/TESTING, NOT IN PRODUCTION]
+#=========================================================================
 #       basic protected route
-@app.route('/protected')
+@app.route('/api/auth/protected')
 @jwt_required()
 def protected():
     user = get_jwt_identity()
     return jsonify(logged_in_as=user)
 
 #       system admin-only route
-@app.route('/admin-only')
+@app.route('/api/auth/admin-only')
 @jwt_required()
 def admin_only():
     claims = get_jwt()
@@ -90,9 +178,15 @@ def admin_only():
         return {"error": "System admins only!"}, 403
     return {"secret_data": "Top secret admin info!"}
 
+#=========================================================================
+
 @app.route('/')
-def dummy_endpoint():
-    return jsonify(message="Hello, World!")
+def health_check():
+    return jsonify(
+            status="running",
+            service="auth",
+            environment=os.getenv("FLASK_ENV", "development")
+            )
 
 if __name__ == '__main__':
     app.run(debug=True)
