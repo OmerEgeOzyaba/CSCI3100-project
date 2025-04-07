@@ -8,6 +8,7 @@ from datetime import timedelta
 import sys
 from werkzeug.security import generate_password_hash, check_password_hash
 import redis
+from flask_cors import CORS
 
 # loads properties.env
 load_dotenv()
@@ -16,6 +17,9 @@ load_dotenv()
 create_database()
 
 app = Flask(__name__)
+
+# allow requests from different localhost port (react)
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 
 # configure JWT in Flask
 # setting up JWT_SECRET_KEY with safety checks and warnings
