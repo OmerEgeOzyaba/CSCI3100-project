@@ -15,6 +15,7 @@ API.interceptors.request.use((config) => {
 })
 
 export const login = async (email, password) => {
+  console.log("API: Login called")
   const response = await API.post('/api/auth/login', { email, password })
   return response.data
 }
