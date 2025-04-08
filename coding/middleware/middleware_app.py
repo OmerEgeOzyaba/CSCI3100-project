@@ -18,8 +18,13 @@ create_database()
 
 app = Flask(__name__)
 
-# allow requests from different localhost port (react)
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+# More explicit CORS configuration
+CORS(app, 
+     resources={r"/api/*": {"origins": "http://localhost:5173"}},
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization", "Accept"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+)
 
 # configure JWT in Flask
 # setting up JWT_SECRET_KEY with safety checks and warnings
@@ -192,5 +197,14 @@ def health_check():
             environment=os.getenv("FLASK_ENV", "development")
             )
 
+# Debug
+@app.after_request
+def after_request(response):
+    print(f"Response headers: {response.headers}")
+    return response
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Get port from environment variable with default fallback to 5001
+    port = int(os.getenv("SERVER_PORT", 5000))
+    print(f"Starting server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=True)

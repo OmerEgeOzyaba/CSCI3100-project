@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Container,
   TextField,
@@ -14,22 +15,38 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
     setSuccess(false)
+    setLoading(true)
 
     try {
       const data = await login(username, password)
-      const token = data.token
-      localStorage.setItem('authToken', token)
-      setError('')
-      setSuccess(true)
+      console.log('Login response:', data)
+      // Store both tokens in localStorage
+      localStorage.setItem('authToken', data.access_token)
+      localStorage.setItem('refreshToken', data.refresh_token)
+      
+      // Redirect to dashboard page after successful login
+      navigate('/dashboard')
     } catch (err) {
       console.error(err)
-      setError('Login failed. Please check your credentials.')
+      if (err.response) {
+        // Server responded with an error
+        setError(`Login failed: ${err.response.data.error || 'Please check your credentials.'}`)
+      } else if (err.request) {
+        // Network error
+        setError('Network error. Please check your connection and try again.')
+      } else {
+        setError('Login failed. Please try again.')
+      }
       setSuccess(false)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -39,7 +56,6 @@ export default function Login() {
         <Typography variant="h5" align="center">Login</Typography>
 
         {error && <Alert severity="error">{error}</Alert>}
-        {success && <Alert severity="success">Login successful!</Alert>}
 
         <form onSubmit={handleLogin}>
           <TextField
@@ -48,6 +64,7 @@ export default function Login() {
             margin="normal"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={loading}
           />
           <TextField
             label="Password"
@@ -56,9 +73,16 @@ export default function Login() {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
           />
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-            Login
+          <Button 
+            type="submit" 
+            variant="contained" 
+            fullWidth 
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
       </Box>
