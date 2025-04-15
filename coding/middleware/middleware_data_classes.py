@@ -213,4 +213,4 @@ class SoftwareLicense(Base):
         self.used_status = used_status
 
 def create_database():
-    Base.metadata.create_all(Database())
+    Base.metadata.create_all(Database().get_engine())
