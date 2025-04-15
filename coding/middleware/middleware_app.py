@@ -210,6 +210,58 @@ def admin_only():
 
 #=========================================================================
 
+# User endpoints
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    """Retrieve a list of users."""
+    dummy_users = [
+        {"id": 1, "name": "John Doe", "email": "john@example.com"},
+        {"id": 2, "name": "Jane Smith", "email": "jane@example.com"}
+    ]
+    return jsonify(dummy_users), 200
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    """Retrieve a specific user by ID."""
+    dummy_users = [
+        {"id": 1, "name": "John Doe", "email": "john@example.com"},
+        {"id": 2, "name": "Jane Smith", "email": "jane@example.com"}
+    ]
+    
+    # Find the user with the matching ID
+    user = next((usr for usr in dummy_users if usr["id"] == user_id), None)
+    
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+    
+    return jsonify(user), 200
+
+# Invitation endpoints
+@app.route('/api/invitations', methods=['GET'])
+def get_invitations():
+    """Retrieve a list of invitations."""
+    dummy_invitations = [
+        {"id": 1, "email": "invitee1@example.com", "status": "pending"},
+        {"id": 2, "email": "invitee2@example.com", "status": "accepted"}
+    ]
+    return jsonify(dummy_invitations), 200
+
+@app.route('/api/invitations/<int:invitation_id>', methods=['GET'])
+def get_invitation(invitation_id):
+    """Retrieve a specific invitation by ID."""
+    dummy_invitations = [
+        {"id": 1, "email": "invitee1@example.com", "status": "pending"},
+        {"id": 2, "email": "invitee2@example.com", "status": "accepted"}
+    ]
+    
+    # Find the invitation with the matching ID
+    invitation = next((inv for inv in dummy_invitations if inv["id"] == invitation_id), None)
+    
+    if invitation is None:
+        return jsonify({"error": "Invitation not found"}), 404
+    
+    return jsonify(invitation), 200
+
 @app.route('/')
 def health_check():
     return jsonify(
