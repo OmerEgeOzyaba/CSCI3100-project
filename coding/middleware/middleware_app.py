@@ -10,6 +10,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import redis
 from flask_cors import CORS
 
+from routes.user_routes import user_bp
+from routes.invitation_routes import invitation_bp
+from routes.task_routes import task_bp
+from routes.group_routes import group_bp
+
 # loads properties.env
 load_dotenv()
 
@@ -43,9 +48,20 @@ else:
         print("     Generate with: python3 generate_secret_key.py")
         raise
 
+
+
+
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15) # expiration for short-lived JWTs
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7) # expiration for long-lived JWTs
 jwt = JWTManager(app) # initialize JWT
+
+# Register blueprints
+app.register_blueprint(user_bp, url_prefix='/api/users')
+app.register_blueprint(invitation_bp, url_prefix='/api/invitations')
+app.register_blueprint(task_bp, url_prefix='/api/tasks')
+app.register_blueprint(group_bp, url_prefix='/api/groups')
+
+
 
 # configure redis [FOR LOGOUT]
 # TODO: might wanna change this to strict loading like JWT configuration (i.e. including configuration values in .env)
@@ -102,6 +118,11 @@ def handle_server_error(error):
 #========================================================================= 
 
 # login endpoint
+
+@app.route('/')
+def index():
+    return 'CULater API is running!'
+
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     if not request.is_json:
