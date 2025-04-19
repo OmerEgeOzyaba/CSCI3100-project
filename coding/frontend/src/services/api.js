@@ -30,3 +30,15 @@ export const login = async (email, password) => {
     throw error
   }
 }
+
+export const signup = async (email, password, licenseKey) => {
+  console.log("API: SignUp called")
+  try {
+    const response = await API.post('/api/auth/signup', { email, password, licenseKey })
+    console.log("API: Signup response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: Signup error", error)
+    throw error
+  }
+}

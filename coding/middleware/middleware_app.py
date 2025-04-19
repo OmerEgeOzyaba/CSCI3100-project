@@ -26,7 +26,7 @@ app = Flask(__name__)
 
 # More explicit CORS configuration
 CORS(app, 
-     resources={r"/api/*": {"origins": "http://localhost:5173"}},
+     resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}},
      supports_credentials=True,
      allow_headers=["Content-Type", "Authorization", "Accept"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
@@ -152,6 +152,11 @@ def login():
             "refresh_token": refresh_token,
             "user": {"email": email, "global_roles": user["global_roles"]}
             }), 200
+
+@app.route('/api/auth/signup', methods=['POST'])
+def signup():
+    # TODO
+    return jsonify({"msg": "Signup successful"}), 201
 
 # logout endpoint
 # TODO: For delevopment purposes, no need to use Redis, commented out parts that use Redis.

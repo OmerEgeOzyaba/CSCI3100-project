@@ -1,37 +1,62 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen, waitFor } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import '@testing-library/jest-dom'
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { vi } from 'vitest'
 import Login from "../src/pages/Login"
+import Home from '../src/pages/Home';
 
 vi.mock('axios');
 import { axiosInstance } from 'axios';
 
 describe('Login', () => {
     test('renders the login form fields', () => {
-        render(<Login />);
 
-        expect(screen.getByLabelText("Username")).toBeInTheDocument();
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
+
+        expect(screen.getByLabelText("Email")).toBeInTheDocument();
         expect(screen.getByLabelText("Password")).toBeInTheDocument();
         expect(screen.getByRole('button', { name: "Login" })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: "Sign up" })).toBeInTheDocument();
     });
 
     test('submits email and password', async () => {
-        axiosInstance.post.mockResolvedValue({ data: { token: "token123" } })
+        axiosInstance.post.mockResolvedValue({
+            status: 200,
+            data: { access_token: 'token123' },
+        })
 
         const user = userEvent.setup();
 
-        render(<Login />);
+        render(
+            <MemoryRouter initialEntries={['/login']}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/dashboard" element={<Home />} />
+                </Routes>
+            </MemoryRouter>
+        );
 
-        await user.type(screen.getByLabelText("Username"), 'user@example.com');
+        await user.type(screen.getByLabelText("Email"), 'user@example.com');
         await user.type(screen.getByLabelText("Password"), 'pass123');
         await user.click(screen.getByRole('button', { name: "Login" }));
 
-        expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/login', {
-            email: 'user@example.com',
-            password: 'pass123',
-        });
+        await waitFor(() => {
 
-        expect(await screen.findByText("Login successful!")).toBeInTheDocument();
+            expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/login', {
+                email: 'user@example.com',
+                password: 'pass123',
+            });
+
+            expect(screen.queryByRole('Alert')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText ("Password")).not.toBeInTheDocument();
+
+            expect(screen.getByRole('heading', {name: /Welcome to CULater Dashboard/i,})).toBeInTheDocument();
+            
+        });
     });
 });

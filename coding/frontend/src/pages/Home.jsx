@@ -246,6 +246,7 @@ export default function Home() {
                     labelId="task-select-label"
                     id="task-select"
                     label="Select Task"
+                    value=''
                   >
                     {tasks.map((task) => (
                       <MenuItem key={task.id} value={task.id}>{task.title}</MenuItem>
@@ -259,6 +260,7 @@ export default function Home() {
                     labelId="group-select-label"
                     id="group-select"
                     label="Select Group"
+                    value=''
                   >
                     {groups.map((group) => (
                       <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>

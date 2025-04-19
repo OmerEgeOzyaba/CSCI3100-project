@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   Container,
   TextField,
@@ -11,7 +11,7 @@ import {
 import { login } from '../services/api'
 
 export default function Login() {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -25,8 +25,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const data = await login(username, password)
-      console.log('Login response:', data)
+      const data = await login(email, password)
       // Store both tokens in localStorage
       localStorage.setItem('authToken', data.access_token)
       localStorage.setItem('refreshToken', data.refresh_token)
@@ -59,11 +58,11 @@ export default function Login() {
 
         <form onSubmit={handleLogin}>
           <TextField
-            label="Username"
+            label="Email"
             fullWidth
             margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
           <TextField
@@ -85,6 +84,11 @@ export default function Login() {
             {loading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
+        <Typography variant="h6">
+          <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>
+            Sign up
+          </Link>
+        </Typography>
       </Box>
     </Container>
   )
