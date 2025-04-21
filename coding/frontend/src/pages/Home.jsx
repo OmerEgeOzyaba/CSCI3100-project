@@ -36,8 +36,15 @@ import {
   Group as GroupIcon,
   Assignment as AssignmentIcon
 } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 
 export default function Home() {
+  const navigate = useNavigate()
+
+  const handleEditGroup = (group) => {
+    navigate('/group-edit', { state: { group } });
+  };
+
   // Mock data for demonstration
   const [tasks] = useState([
     { id: 1, title: 'Complete project report', dueDate: '2023-06-15' },
@@ -168,7 +175,7 @@ export default function Home() {
                             primary={group.name}
                           />
                           <ListItemSecondaryAction>
-                            <Button size="small" variant="outlined">
+                            <Button size="small" variant="outlined" onClick={() => handleEditGroup(group)}>
                               Manage
                             </Button>
                           </ListItemSecondaryAction>

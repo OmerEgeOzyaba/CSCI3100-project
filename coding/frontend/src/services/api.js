@@ -42,3 +42,27 @@ export const signup = async (email, password, licenseKey) => {
     throw error
   }
 }
+
+export const createGroup = async (name, description) => {
+  console.log("API: createGroup called")
+  try {
+    const response = await API.post('/api/groups', { name, description })
+    console.log("API: createGroup response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: createGroup error", error)
+    throw error
+  }
+}
+
+export const updateGroup = async (id, name, description) => {
+  console.log("API: updateGroup called")
+  try {
+    const response = await API.put(`/api/groups/${id}`, { name, description })
+    console.log("API: updateGroup response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: updateGroup error", error)
+    throw error
+  }
+}

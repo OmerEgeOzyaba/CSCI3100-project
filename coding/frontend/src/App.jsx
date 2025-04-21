@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login'
 import Home from './pages/Home'
 import SignUp from './pages/SignUp'
+import GroupView from './pages/GroupView'
 import './App.css'
 
 function App() {
@@ -36,6 +37,13 @@ function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        } />
+
+        {/* GroupView route - protected, requires authentication */}
+        <Route path="/group-edit" element={
+          <ProtectedRoute>
+            <GroupView />
           </ProtectedRoute>
         } />
         

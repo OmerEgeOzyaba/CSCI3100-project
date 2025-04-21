@@ -35,6 +35,13 @@ def create_group():
     groups.append(new_group)
     return jsonify({"group": new_group}), 201
 
+@group_bp.route('/<int:group_id>', methods=['PUT'])
+def update_group(group_id):
+    if not request.json:
+        return jsonify({"error": "Invalid request data"}), 400
+    # TODO
+    return jsonify({}), 200
+
 @group_bp.route('/<int:group_id>/members', methods=['POST'])
 def add_member(group_id):
     group = next((g for g in groups if g["id"] == group_id), None)
