@@ -64,6 +64,7 @@ export default function Home() {
   const handleLeaveGroup = async (group) => {
     try {
           await leaveGroup(group.id)
+          setGroupLoading(true)
           fetchGroup()
         } catch (err) {
           console.error(err)

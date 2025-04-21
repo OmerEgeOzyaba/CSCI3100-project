@@ -9,7 +9,9 @@ import {
   Box,
   Divider,
   CircularProgress,
+  ListItemIcon
 } from '@mui/material';
+import { Person as PersonIcon } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getMembers } from '../services/api'
 
@@ -19,6 +21,7 @@ const MembersPage = () => {
 
   const group = location.state?.group;
   const groupId = group?.id;
+  const groupName = group?.name;
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +56,7 @@ const MembersPage = () => {
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h4" gutterBottom>
-          Members:
+          {groupName} Members:
         </Typography>
 
         {loading ? (
@@ -65,6 +68,9 @@ const MembersPage = () => {
             {members.map((user, index) => (
               <React.Fragment key={index}>
                 <ListItem>
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
                   <ListItemText
                     primary={user.email}
                     secondary={`Role: ${user.role}`}
