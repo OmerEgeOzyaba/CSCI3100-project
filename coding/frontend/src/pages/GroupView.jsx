@@ -32,7 +32,7 @@ const GroupFormPage = () => {
   };
 
   const handleCancel = () => {
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (

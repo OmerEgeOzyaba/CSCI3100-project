@@ -46,7 +46,7 @@ export const signup = async (email, password, licenseKey) => {
 export const createGroup = async (name, description) => {
   console.log("API: createGroup called")
   try {
-    const response = await API.post('/api/groups', { name, description })
+    const response = await API.post('/api/groups/', { name, description })
     console.log("API: createGroup response", response.data)
     return response
   } catch (error) {

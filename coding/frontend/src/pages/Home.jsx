@@ -72,11 +72,6 @@ export default function Home() {
           <Button color="inherit" startIcon={<PersonIcon />}>
             Profile
           </Button>
-          <IconButton color="inherit">
-            <Badge badgeContent={2} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -86,19 +81,6 @@ export default function Home() {
           <Typography variant="h4" component="h1" gutterBottom>
             Welcome to CULater Dashboard
           </Typography>
-        </Box>
-
-        {/* Action Buttons */}
-        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-          <Button variant="contained" startIcon={<AddIcon />} color="primary">
-            Create Task
-          </Button>
-          <Button variant="contained" startIcon={<GroupIcon />} color="secondary">
-            My Groups
-          </Button>
-          <Button variant="contained" startIcon={<AssignmentIcon />}>
-            View Invites
-          </Button>
         </Box>
 
         {/* Main Dashboard Grid */}
@@ -192,7 +174,7 @@ export default function Home() {
                 </Paper>
               </CardContent>
               <CardActions>
-                <Button startIcon={<AddIcon />} size="small">
+                <Button startIcon={<AddIcon />} size="small" onClick={() => handleEditGroup()}>
                   Create New Group
                 </Button>
               </CardActions>
@@ -236,50 +218,6 @@ export default function Home() {
                   </List>
                 </Paper>
               </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Feature 4: Assign Tasks to Groups */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="div" gutterBottom>
-                  Assign Task to Group
-                </Typography>
-                
-                <FormControl fullWidth margin="normal">
-                  <InputLabel id="task-select-label">Select Task</InputLabel>
-                  <Select
-                    labelId="task-select-label"
-                    id="task-select"
-                    label="Select Task"
-                    value=''
-                  >
-                    {tasks.map((task) => (
-                      <MenuItem key={task.id} value={task.id}>{task.title}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                
-                <FormControl fullWidth margin="normal">
-                  <InputLabel id="group-select-label">Select Group</InputLabel>
-                  <Select
-                    labelId="group-select-label"
-                    id="group-select"
-                    label="Select Group"
-                    value=''
-                  >
-                    {groups.map((group) => (
-                      <MenuItem key={group.id} value={group.id}>{group.name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </CardContent>
-              <CardActions>
-                <Button variant="contained" size="small">
-                  Assign Task
-                </Button>
-              </CardActions>
             </Card>
           </Grid>
         </Grid>
