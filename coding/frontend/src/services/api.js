@@ -102,3 +102,16 @@ export const leaveGroup = async (id) => {
     throw error
   }
 }
+
+export const logout = async () => {
+  console.log("API: logout called")
+  try {
+    const response = await API.post(`/api/auth/logout`)
+    console.log("API: logout response", response.data)
+    localStorage.removeItem('authToken');
+    return response
+  } catch (error) {
+    console.error("API: logout error", error)
+    throw error
+  }
+}

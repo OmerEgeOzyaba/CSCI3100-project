@@ -161,8 +161,9 @@ def signup():
 # logout endpoint
 # TODO: For delevopment purposes, no need to use Redis, commented out parts that use Redis.
 #       decide on what to do based on team discussion.
-@app.route('/api/auth/logout', methods=['DELETE'])
-@jwt_required()
+@app.route('/api/auth/logout', methods=['POST'])
+# TODO comment for testing
+# @jwt_required()
 def logout():
     # jti = get_jwt()["jti"]
     # redis_client.set(jti, "revoked", ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"]) # TODO: change here if team decided to exclude refreshing

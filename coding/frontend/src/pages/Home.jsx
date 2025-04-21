@@ -32,7 +32,7 @@ import {
   Assignment as AssignmentIcon
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { getGroups, leaveGroup } from '../services/api'
+import { getGroups, leaveGroup, logout } from '../services/api'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -70,6 +70,15 @@ export default function Home() {
         }
   };
 
+  const handleLogout = async () => {
+    try {
+          await logout()
+          navigate("/login")
+        } catch (err) {
+          console.error(err)
+        }
+  };
+
   const [groups, setGroups] = useState([]);
   const [groupLoading, setGroupLoading] = useState(true);
 
@@ -92,8 +101,8 @@ export default function Home() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             CULater
           </Typography>
-          <Button color="inherit" startIcon={<PersonIcon />}>
-            Profile
+          <Button color="inherit" startIcon={<PersonIcon />} onClick={() => handleLogout()}>
+            Logout
           </Button>
         </Toolbar>
       </AppBar>
