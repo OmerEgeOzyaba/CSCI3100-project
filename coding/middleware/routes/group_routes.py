@@ -4,8 +4,8 @@ group_bp = Blueprint('groups', __name__)
 
 # Dummy data
 groups = [
-    {"id": 1, "name": "Project Alpha", "description": "Software development team", "created_at": "2025-03-01T10:00:00Z", "members": [1, 2, 3], "owner_id": 1},
-    {"id": 2, "name": "Marketing Team", "description": "Product marketing", "created_at": "2025-03-05T15:30:00Z", "members": [1, 3], "owner_id": 3}
+    {"id": 1, "name": "Project Alpha", "description": "Software development team", "created_at": "2025-03-01T10:00:00Z", "members": [{"email": "test@gmail.com", "role": "admin"}, {"email": "test@gmail.com", "role": "contributor"}, {"email": "test@gmail.com", "role": "contributor"}], "owner_id": 1},
+    {"id": 2, "name": "Marketing Team", "description": "Product marketing", "created_at": "2025-03-05T15:30:00Z", "members": [{"email": "test@gmail.com", "role": "admin"}, {"email": "test@gmail.com", "role": "contributor"}], "owner_id": 3}
 ]
 
 @group_bp.route('/', methods=['GET'])

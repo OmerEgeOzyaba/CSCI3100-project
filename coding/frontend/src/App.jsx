@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import SignUp from './pages/SignUp'
 import GroupView from './pages/GroupView'
+import MembersView from './pages/MembersView'
 import './App.css'
 
 function App() {
@@ -44,6 +45,13 @@ function App() {
         <Route path="/group-edit" element={
           <ProtectedRoute>
             <GroupView />
+          </ProtectedRoute>
+        } />
+
+        {/* GroupView route - protected, requires authentication */}
+        <Route path="/members-view" element={
+          <ProtectedRoute>
+            <MembersView />
           </ProtectedRoute>
         } />
         

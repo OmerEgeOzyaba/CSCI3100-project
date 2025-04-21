@@ -45,6 +45,10 @@ export default function Home() {
     navigate('/group-edit', { state: { group } });
   };
 
+  const handleViewMembers = (group) => {
+    navigate('/members-view', { state: { group } });
+  };
+
   // Mock data for demonstration
   const [tasks] = useState([
     { id: 1, title: 'Complete project report', dueDate: '2023-06-15' },
@@ -159,6 +163,12 @@ export default function Home() {
                           <ListItemSecondaryAction>
                             <Button size="small" variant="outlined" onClick={() => handleEditGroup(group)}>
                               Manage
+                            </Button>
+                            <Button size="small" variant="outlined" onClick={() => handleViewMembers(group)}>
+                              Members
+                            </Button>
+                            <Button size="small" variant="outlined">
+                              Leave
                             </Button>
                           </ListItemSecondaryAction>
                         </ListItem>
