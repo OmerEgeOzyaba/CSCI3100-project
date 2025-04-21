@@ -32,7 +32,7 @@ import {
   Assignment as AssignmentIcon
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { getGroups } from '../services/api'
+import { getGroups, leaveGroup } from '../services/api'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -45,24 +45,33 @@ export default function Home() {
     navigate('/members-view', { state: { group } });
   };
 
-  const [groups, setGroups] = useState([]);
-  const [groupLoading, setGroupLoading] = useState(true);
+  const fetchGroup = async () => {
+    try {
+      const response = await getGroups();
+      const groups = response.data.groups || [];
+      setGroups(groups);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
+    } finally {
+      setGroupLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const response = await getGroups();
-        const groups = response.data.groups || [];
-        setGroups(groups);
-      } catch (error) {
-        console.error('Error fetching groups:', error);
-      } finally {
-        setGroupLoading(false);
-      }
-    };
-
     fetchGroup();
   }, [navigate]);
+
+  const handleLeaveGroup = async (group) => {
+    try {
+          await leaveGroup(group.id)
+          fetchGroup()
+        } catch (err) {
+          console.error(err)
+        }
+  };
+
+  const [groups, setGroups] = useState([]);
+  const [groupLoading, setGroupLoading] = useState(true);
 
   // Mock data for demonstration
   const [tasks] = useState([
@@ -182,7 +191,7 @@ export default function Home() {
                               <Button size="small" variant="outlined" onClick={() => handleViewMembers(group)}>
                                 Members
                               </Button>
-                              <Button size="small" variant="outlined">
+                              <Button size="small" variant="outlined" onClick={() => handleLeaveGroup(group)}>
                                 Leave
                               </Button>
                             </ListItemSecondaryAction>

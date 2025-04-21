@@ -42,6 +42,11 @@ def update_group(group_id):
     # TODO
     return jsonify({}), 200
 
+@group_bp.route('/<int:group_id>/leave', methods=['POST'])
+def leave_group(group_id):
+    # TODO
+    return jsonify({}), 200
+
 @group_bp.route('/<int:group_id>/members', methods=['POST'])
 def add_member(group_id):
     group = next((g for g in groups if g["id"] == group_id), None)

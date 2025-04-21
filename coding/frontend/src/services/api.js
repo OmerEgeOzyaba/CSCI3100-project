@@ -90,3 +90,15 @@ export const getGroups = async () => {
     throw error
   }
 }
+
+export const leaveGroup = async (id) => {
+  console.log("API: leaveGroup called")
+  try {
+    const response = await API.post(`/api/groups/${id}/leave`)
+    console.log("API: leaveGroup response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: leaveGroup error", error)
+    throw error
+  }
+}
