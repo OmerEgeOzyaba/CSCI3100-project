@@ -78,3 +78,15 @@ export const getMembers = async (id) => {
     throw error
   }
 }
+
+export const getGroups = async () => {
+  console.log("API: getGroups called")
+  try {
+    const response = await API.get(`/api/groups/`)
+    console.log("API: getGroups response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: getGroups error", error)
+    throw error
+  }
+}
