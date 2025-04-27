@@ -62,4 +62,84 @@ describe('SignUp', () => {
             
         });
     });
+
+    test('submits bad values', async () => {
+        axiosInstance.post.mockRejectedValue({
+            status: 400,
+            data:  {"error": "Email already taken"},
+        })
+
+        const user = userEvent.setup();
+
+        render(
+            <MemoryRouter>
+                <SignUp />
+            </MemoryRouter>
+        );
+
+        await user.type(screen.getByLabelText("Email"), 'user@example.com');
+        await user.type(screen.getByLabelText("Password"), 'pass1234');
+        await user.type(screen.getByLabelText("License Key"), '12341234');
+        await user.click(screen.getByRole('button', { name: "Create Account" }));
+
+        await waitFor(() => {
+
+            expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/signup', {
+                email: 'user@example.com',
+                password: 'pass1234',
+                licenseKey: '12341234'
+            });
+
+            expect(screen.getByRole('alert')).toBeInTheDocument();
+            expect(screen.queryByLabelText("License Key")).toBeInTheDocument();
+
+            expect(screen.queryByRole('link', { name: "Sign up" })).not.toBeInTheDocument();
+            
+        });
+    });
+
+    test('submits no license key', async () => {
+        const user = userEvent.setup();
+
+        render(
+            <MemoryRouter>
+                <SignUp />
+            </MemoryRouter>
+        );
+
+        await user.type(screen.getByLabelText("Email"), 'user@example.com');
+        await user.type(screen.getByLabelText("Password"), 'pass1234');
+        await user.click(screen.getByRole('button', { name: "Create Account" }));
+
+        await waitFor(() => {
+
+            expect(screen.getByText('License key cannot be empty.')).toBeInTheDocument();
+            expect(screen.getByLabelText("License Key")).toBeInTheDocument();
+
+            expect(screen.queryByRole('link', { name: "Sign up" })).not.toBeInTheDocument();
+            
+        });
+    });
+
+    test('clicks cancel', async () => {
+        const user = userEvent.setup();
+
+        render(
+            <MemoryRouter initialEntries={['/signup']}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<SignUp />} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        await user.click(screen.getByRole('button', { name: "Cancel" }));
+
+        await waitFor(() => {
+            expect(screen.queryByRole('Alert')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText("License Key")).not.toBeInTheDocument();
+
+            expect(screen.getByRole('link', { name: "Sign up" })).toBeInTheDocument();  
+        });
+    });
 });
