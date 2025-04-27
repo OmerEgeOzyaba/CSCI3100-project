@@ -64,7 +64,7 @@ const MembersPage = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <List>
+          <List data-testid="members-list">
             {members.map((user, index) => (
               <React.Fragment key={index}>
                 <ListItem>

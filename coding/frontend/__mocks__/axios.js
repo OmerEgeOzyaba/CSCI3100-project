@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 const axiosInstance = {
   post: vi.fn(),
   get: vi.fn(),
+  put: vi.fn(),
   interceptors: {
     request: {
       use: vi.fn(),

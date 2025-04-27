@@ -34,6 +34,8 @@ describe('Logout', () => {
 
         await user.click(screen.getByRole('button', { name: "Logout" }));
 
+        expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/logout');
+
         await waitFor(() => {
             expect(screen.getByLabelText("Email")).toBeInTheDocument();
             expect(screen.getByLabelText("Password")).toBeInTheDocument();

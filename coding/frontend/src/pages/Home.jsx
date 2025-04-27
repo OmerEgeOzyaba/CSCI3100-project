@@ -187,7 +187,7 @@ export default function Home() {
                       <CircularProgress />
                     </Box>
                   ) : (
-                    <List>
+                    <List data-testid="group-list">
                       {groups.map((group) => (
                         <React.Fragment key={group.id}>
                           <ListItem>
