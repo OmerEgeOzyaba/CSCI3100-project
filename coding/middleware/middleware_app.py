@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g
 from dotenv import load_dotenv
 from middleware_data_classes import create_database
 from database import Database
@@ -7,7 +7,6 @@ import os
 import secrets
 from datetime import timedelta
 import sys
-from werkzeug.security import generate_password_hash, check_password_hash
 import redis
 from flask_cors import CORS
 
@@ -16,6 +15,9 @@ from routes.user_routes import user_bp
 from routes.invitation_routes import invitation_bp
 from routes.task_routes import task_bp
 from routes.group_routes import group_bp
+
+from middleware.extensions import redis_client
+from services.auth_service import AuthService
 
 # loads properties.env
 load_dotenv()
@@ -27,10 +29,10 @@ app = Flask(__name__)
 
 # More explicit CORS configuration
 CORS(app, 
-     resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}},
-     supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization", "Accept"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}},
+    supports_credentials=True,
+    allow_headers=["Content-Type", "Authorization", "Accept"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
 
 # configure JWT in Flask
@@ -53,8 +55,7 @@ else:
 
 
 
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15) # expiration for short-lived JWTs
-app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7) # expiration for long-lived JWTs
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7) # expiration for auth tokens
 jwt = JWTManager(app) # initialize JWT
 
 # Register blueprints
@@ -66,33 +67,20 @@ app.register_blueprint(group_bp, url_prefix='/api/groups')
 
 
 
-# configure redis [FOR LOGOUT]
-# TODO: might wanna change this to strict loading like JWT configuration (i.e. including configuration values in .env)
-# TODO: commented everything Redis related out for now, decide on what to do based on team discussion
-#redis_client = redis.Redis(
-        #host = os.getenv("REDIS_HOST", "localhost"),
-        #port = int(os.getenv("REDIS_PORT", 6379)),
-        #db = int(os.getenv("REDIS_DB", 0)),
-        #decode_responses = True
-        #)
+# configure redis [configured in extensions.py]
+# create AuthService object for the whole program
+auth_service = AuthService(redis_client)
+@app.before_request
+def before_request():
+    g.auth_service = auth_service
 
-#try: 
-    #redis_client.ping()
-    #print("Redis connection successful")
-#except redis.ConnectionError:
-    #print("Redis connection failed - check if Redis server is running")
-    #sys.exit(1)
 
-# blacklist checker [FOR LOGOUT]
-#@jwt.token_in_blocklist_loader
-#def check_if_token_revoked(jwt_header, jwt_payload):
-    #jti = jwt_payload["jti"]
-    #return redis_client.exists(jti)
+# blacklist checker [might not need it]
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return redis_client.exists(f"revoked:{jti}")
 
-# dummy user database
-# TODO: Instead of this, configure the real database
-users = {"test@example.com":{"password": generate_password_hash("password123"), "global_roles":["user"]},
-         "admin@example.com":{"password": generate_password_hash("admin123"), "global_roles":["super_admin","user"]}}
 
 #=========================================================================
 # global error handlers [FOR UNEXPECTED ERRORS]
