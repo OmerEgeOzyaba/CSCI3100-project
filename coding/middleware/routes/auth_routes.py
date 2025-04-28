@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import (
         create_access_token,
         create_refresh_token,
@@ -7,6 +7,7 @@ from flask_jwt_extended import (
         jwt_required
         )
 from werkzeug.security import check_password_hash
+from services.auth_service import AuthService
 
 auth_bp = Blueprint('auth', __name__)
 
