@@ -16,7 +16,7 @@ from routes.invitation_routes import invitation_bp
 from routes.task_routes import task_bp
 from routes.group_routes import group_bp
 
-from middleware.extensions import redis_client
+from extensions import redis_client
 from services.auth_service import AuthService
 
 # loads properties.env
@@ -70,6 +70,8 @@ app.register_blueprint(group_bp, url_prefix='/api/groups')
 # configure redis [configured in extensions.py]
 # create AuthService object for the whole program
 auth_service = AuthService(redis_client)
+app.extensions = getattr(app, "extensions", {})
+app.extensions['auth_service'] = auth_service
 @app.before_request
 def before_request():
     g.auth_service = auth_service

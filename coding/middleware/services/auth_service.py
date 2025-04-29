@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash
 from flask import current_app
 from functools import wraps
-from middleware.middleware_data_classes import User
+from middleware_data_classes import User
 from sqlalchemy.orm import Session
 from database import Database
 import os
