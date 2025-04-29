@@ -1,0 +1,54 @@
+For the authentication features, you need to install Redis server locally, 
+and also install python redis client in your virtual environment. Redis 
+client was already in requirements.txt, but if you havent updated your vir-
+tual environment with the latest dependencies, simply run 
+
+	"pip install -r requirements.txt" 
+
+and redis client will be installed to your virtual environment too. To install 
+redis server on your computer locally, you need to run the following commands:
+
+	# On macOS (using Homebrew):
+	brew install redis
+	brew services start redis
+
+	# On Ubuntu/Debian:
+	sudo apt update
+	sudo apt install redis-server
+	sudo systemctl enable redis-server
+	sudo systemctl start redis-server
+
+	# Windows:
+	Download from https://github.com/microsoftarchive/redis/releases
+	Run redis-server.exe
+
+	# To check if it's running (in bash)
+	redis-cli ping
+	# Should return "PONG"
+
+So every time you're going to run the middleware_app.py, you have to locally 
+run 
+	
+	# On macOS (using Homebrew)
+       	brew services start redis
+
+        # On Ubuntu/Debian:
+        sudo systemctl start redis-server
+
+        # Windows:
+        Run redis-server.exe
+
+just like how you start the docker. And every time you're done working on/run-
+ning the middleware_app.py, run:
+
+	# On Ubuntu/Debian:
+	sudo systemctl stop redis-server
+	# You can also run:
+	sudo systemctl disable redis-server
+	# but then every time before your start redis, you have to run
+	# sudo systemctl enable redis-server
+
+	# For macOS and Windows, check which commands you need to run
+
+And that's it!
+
