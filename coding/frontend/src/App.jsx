@@ -9,7 +9,8 @@ import './App.css'
 function App() {
   // Check if user is logged in by looking for authToken in localStorage
   const isAuthenticated = () => {
-    return localStorage.getItem('authToken') !== null
+    const token = localStorage.getItem('authToken');
+    return token !== null && token !== 'undefined' && token !== undefined;
   }
 
   // Protected route component that redirects to login if not authenticated

@@ -37,6 +37,16 @@ import { getGroups, leaveGroup, logout } from '../services/api'
 export default function Home() {
   const navigate = useNavigate()
 
+  // Check token validity on mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token || token === 'undefined' || token === undefined) {
+      console.log('Invalid token detected in Home, redirecting to login');
+      localStorage.removeItem('authToken');
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const handleEditGroup = (group) => {
     navigate('/group-edit', { state: { group } });
   };

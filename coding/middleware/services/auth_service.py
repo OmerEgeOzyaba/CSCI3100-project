@@ -28,7 +28,13 @@ class AuthService:
 
             # Generate JWTs
             jti = str(uuid.uuid4()) # Generates unique id for refresh token
-            auth_token = create_access_token(identity=email, additional_claims={"jti":jti})
+            auth_token = create_access_token(
+                identity=email,
+                additional_claims={
+                    "jti": jti,
+                    "type": "access"
+                }
+            )
 
             return auth_token, None
         except Exception as e:
@@ -39,8 +45,12 @@ class AuthService:
 
     def logout(self, jti):
         try:
-            token_expiration = timedelta(days=current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds())
-            self.redis.setex(f"revoked:{jti}", token_expiration, "")
+            # Get the token expiration from the config
+            token_expiration = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+            # Convert to seconds for Redis
+            expiration_seconds = int(token_expiration.total_seconds())
+            # Store in Redis with the expiration time
+            self.redis.setex(f"revoked:{jti}", expiration_seconds, "revoked")
             return True
         except Exception as e:
             current_app.logger.error(f"Logout error: {str(e)}")

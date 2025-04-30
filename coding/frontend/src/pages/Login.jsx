@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   Container,
@@ -17,6 +17,12 @@ export default function Login() {
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  
+  // Clear any stale token when the login page loads
+  useEffect(() => {
+    localStorage.removeItem('authToken');
+    console.log('Cleared any existing auth token on Login page mount');
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -26,9 +32,13 @@ export default function Login() {
 
     try {
       const data = await login(email, password)
-      // Store both tokens in localStorage
-      localStorage.setItem('authToken', data.access_token)
-      localStorage.setItem('refreshToken', data.refresh_token)
+      // Store the access token in localStorage
+      if (data && data.access_token) {
+        localStorage.setItem('authToken', data.access_token)
+        console.log("Token stored from Login component:", data.access_token)
+      } else {
+        console.error("No access_token in login response:", data)
+      }
       
       // Redirect to dashboard page after successful login
       navigate('/dashboard')

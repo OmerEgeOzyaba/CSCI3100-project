@@ -24,6 +24,14 @@ export const login = async (email, password) => {
   try {
     const response = await API.post('/api/auth/login', { email, password })
     console.log("API: Login response", response.data)
+    
+    // Log token for debugging but don't store it here
+    if (response.data && response.data.access_token) {
+      console.log("Access token received:", response.data.access_token)
+    } else {
+      console.error("No access_token found in response:", response.data)
+    }
+    
     return response.data
   } catch (error) {
     console.error("API: Login error", error)
@@ -106,7 +114,20 @@ export const leaveGroup = async (id) => {
 export const logout = async () => {
   console.log("API: logout called")
   try {
-    const response = await API.post(`/api/auth/logout`)
+    const token = localStorage.getItem('authToken');
+    console.log("Token retrieved for logout:", token);
+    
+    if (!token || token === 'undefined') {
+      console.error("Invalid token found:", token);
+      throw new Error('No valid token found');
+    }
+    
+    // Add token explicitly in headers to ensure it's sent correctly
+    const response = await API.post(`/api/auth/logout`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     console.log("API: logout response", response.data)
     localStorage.removeItem('authToken');
     return response

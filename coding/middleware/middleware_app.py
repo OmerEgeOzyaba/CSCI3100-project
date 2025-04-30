@@ -27,12 +27,18 @@ create_database()
 
 app = Flask(__name__)
 
-# More explicit CORS configuration
+# Configure CORS with more permissive settings
 CORS(app, 
-    resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}},
+    resources={r"/api/*": {
+        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+        "allow_headers": ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+        "expose_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True,
+        "max_age": 3600
+    }},
     supports_credentials=True,
-    allow_headers=["Content-Type", "Authorization", "Accept"],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    automatic_options=True
 )
 
 # configure JWT in Flask

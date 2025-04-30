@@ -15,10 +15,11 @@ class User(Base):
 
     email: Mapped[String] = mapped_column(String, primary_key=True)
     password: Mapped[String] = mapped_column(String, nullable=False)
+    license_key: Mapped[String] = mapped_column(String, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
-    invitations_received: Mapped[list['Membership']] = relationship("Memberships", back_populates="invited_user")
-    invitations_sent: Mapped[list['Membership']] = relationship("Memberships", back_populates="inviting_user")
+    invitations_received: Mapped[list['Membership']] = relationship("Membership", back_populates="invited_user", foreign_keys="[Membership.user_id]")
+    invitations_sent: Mapped[list['Membership']] = relationship("Membership", back_populates="inviting_user", foreign_keys="[Membership.inviter_email]")
 
     def get_email(self):
         return self.email
@@ -31,6 +32,12 @@ class User(Base):
 
     def set_password(self, password: Mapped[String]):
         self.password = password
+
+    def get_license_key(self):
+        return self.license_key
+
+    def set_license_key(self, license_key: Mapped[String]):
+        self.license_key = license_key
 
     def get_created_at(self):
         return self.created_at
@@ -53,7 +60,7 @@ class Task(Base):
     due_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     status: Mapped[Boolean] = mapped_column(Boolean, nullable=False)
 
-    group: Mapped['Group'] = relationship("Groups", "tasks")
+    group: Mapped['Group'] = relationship("Group", back_populates="tasks")
 
     def get_id(self):
         return self.id
@@ -98,10 +105,10 @@ class Group(Base):
     id: Mapped[Integer] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[String] = mapped_column(String, nullable=False)
     description: Mapped[String] = mapped_column(String, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(String, nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
-    tasks: Mapped[list[Task]] = relationship("Tasks", back_populates="group")
-    memberships: Mapped[list['Membership']] = relationship("Memberships", back_populates="group")
+    tasks: Mapped[list[Task]] = relationship("Task", back_populates="group")
+    memberships: Mapped[list['Membership']] = relationship("Membership", back_populates="group")
 
     def get_id(self):
         return self.id
@@ -141,17 +148,17 @@ class InvitationStatus(Enum):
 class Membership(Base):
     __tablename__ = 'Memberships'
 
-    user_id: Mapped[User] = mapped_column(String, ForeignKey('Users.email'), primary_key=True)
-    group_id: Mapped[Group] = mapped_column(Integer, ForeignKey('Groups.id'), primary_key=True)
+    user_id: Mapped[String] = mapped_column(String, ForeignKey('Users.email'), primary_key=True)
+    group_id: Mapped[Integer] = mapped_column(Integer, ForeignKey('Groups.id'), primary_key=True)
     role: Mapped[Role] = mapped_column(SQLEnum(Role), nullable=False)
     inviter_email: Mapped[String] = mapped_column(String, ForeignKey('Users.email'), nullable=True)
     invite_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     status: Mapped[InvitationStatus] = mapped_column(SQLEnum(InvitationStatus), nullable=False)
     join_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
 
-    invited_user: Mapped[User] = relationship("Users", back_populates="invitations_received")
-    inviting_user: Mapped[User] = relationship("Users", back_populates="invitations_sent")
-    group: Mapped[Group] = relationship("Groups", "memberships")
+    invited_user: Mapped[User] = relationship("User", back_populates="invitations_received", foreign_keys=[user_id])
+    inviting_user: Mapped[User] = relationship("User", back_populates="invitations_sent", foreign_keys=[inviter_email])
+    group: Mapped[Group] = relationship("Group", back_populates="memberships")
 
     def get_user_id(self):
         return self.user_id
