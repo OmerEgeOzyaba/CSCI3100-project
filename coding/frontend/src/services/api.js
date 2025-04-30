@@ -136,3 +136,101 @@ export const logout = async () => {
     throw error
   }
 }
+
+// Task API endpoints
+export const getTasks = async () => {
+  console.log("API: getTasks called")
+  try {
+    const response = await API.get('/api/tasks/')
+    console.log("API: getTasks response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: getTasks error", error)
+    throw error
+  }
+}
+
+export const createTask = async (taskData) => {
+  console.log("API: createTask called")
+  try {
+    const response = await API.post('/api/tasks/', taskData)
+    console.log("API: createTask response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: createTask error", error)
+    throw error
+  }
+}
+
+export const updateTask = async (taskId, taskData) => {
+  console.log("API: updateTask called")
+  try {
+    const response = await API.put(`/api/tasks/${taskId}`, taskData)
+    console.log("API: updateTask response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: updateTask error", error)
+    throw error
+  }
+}
+
+export const deleteTask = async (taskId) => {
+  console.log("API: deleteTask called")
+  try {
+    const response = await API.delete(`/api/tasks/${taskId}`)
+    console.log("API: deleteTask response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: deleteTask error", error)
+    throw error
+  }
+}
+
+// Invitation API endpoints
+export const getInvitations = async () => {
+  console.log("API: getInvitations called")
+  try {
+    const response = await API.get('/api/invites/')
+    console.log("API: getInvitations response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: getInvitations error", error)
+    throw error
+  }
+}
+
+export const sendInvitation = async (email, group_id) => {
+  console.log("API: sendInvitation called")
+  try {
+    const response = await API.post('/api/invites/send', { email, group_id })
+    console.log("API: sendInvitation response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: sendInvitation error", error)
+    throw error
+  }
+}
+
+export const acceptInvitation = async (group_id) => {
+  console.log("API: acceptInvitation called")
+  try {
+    const response = await API.post('/api/invites/accept', { group_id })
+    console.log("API: acceptInvitation response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: acceptInvitation error", error)
+    throw error
+  }
+}
+
+export const declineInvitation = async (group_id) => {
+  console.log("API: declineInvitation called")
+  try {
+    const response = await API.post('/api/invites/decline', { group_id })
+    console.log("API: declineInvitation response", response.data)
+    return response
+  } catch (error) {
+    console.error("API: declineInvitation error", error)
+    throw error
+  }
+}

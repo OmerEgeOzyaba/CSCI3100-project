@@ -9,11 +9,18 @@ import {
   Box,
   Divider,
   CircularProgress,
-  ListItemIcon
+  ListItemIcon,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert
 } from '@mui/material';
-import { Person as PersonIcon } from '@mui/icons-material';
+import { Person as PersonIcon, Add as AddIcon } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getMembers } from '../services/api'
+import { getMembers, sendInvitation } from '../services/api'
 
 const MembersPage = () => {
   const navigate = useNavigate();
@@ -25,6 +32,14 @@ const MembersPage = () => {
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openInviteDialog, setOpenInviteDialog] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   useEffect(() => {
     if (!groupId) {
@@ -52,12 +67,70 @@ const MembersPage = () => {
     navigate('/dashboard');
   };
 
+  const handleOpenInviteDialog = () => {
+    setInviteEmail('');
+    setOpenInviteDialog(true);
+  };
+
+  const handleCloseInviteDialog = () => {
+    setOpenInviteDialog(false);
+  };
+
+  const handleSendInvite = async () => {
+    if (!inviteEmail || !inviteEmail.includes('@')) {
+      setSnackbar({
+        open: true,
+        message: 'Please enter a valid email address',
+        severity: 'error'
+      });
+      return;
+    }
+
+    setInviteLoading(true);
+    try {
+      await sendInvitation(inviteEmail, groupId);
+      setOpenInviteDialog(false);
+      setSnackbar({
+        open: true,
+        message: `Invitation sent to ${inviteEmail}`,
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error sending invitation:', error);
+      let errorMessage = 'Failed to send invitation';
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error'
+      });
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   return (
     <Container maxWidth="sm">
       <Box mt={5}>
-        <Typography variant="h4" gutterBottom>
-          {groupName} Members:
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4" gutterBottom>
+            {groupName} Members:
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<AddIcon />}
+            onClick={handleOpenInviteDialog}
+          >
+            Invite
+          </Button>
+        </Box>
 
         {loading ? (
           <Box display="flex" justifyContent="center" mt={4}>
@@ -88,6 +161,51 @@ const MembersPage = () => {
           </Button>
         </Box>
       </Box>
+
+      {/* Invite User Dialog */}
+      <Dialog open={openInviteDialog} onClose={handleCloseInviteDialog}>
+        <DialogTitle>Invite User to {groupName}</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="email"
+            label="Email Address"
+            type="email"
+            fullWidth
+            variant="outlined"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseInviteDialog} disabled={inviteLoading}>Cancel</Button>
+          <Button 
+            onClick={handleSendInvite} 
+            variant="contained" 
+            color="primary"
+            disabled={inviteLoading || !inviteEmail}
+          >
+            {inviteLoading ? 'Sending...' : 'Send Invitation'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

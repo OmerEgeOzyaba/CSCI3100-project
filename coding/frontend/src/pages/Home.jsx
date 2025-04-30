@@ -19,7 +19,17 @@ import {
   Divider,
   Paper,
   InputAdornment,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+  Tooltip
 } from '@mui/material'
 import {
   Add as AddIcon,
@@ -29,13 +39,16 @@ import {
   Notifications as NotificationsIcon,
   Person as PersonIcon,
   Group as GroupIcon,
-  Assignment as AssignmentIcon
+  Assignment as AssignmentIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { getGroups, leaveGroup, logout } from '../services/api'
+import { getGroups, leaveGroup, logout, getTasks, getInvitations, createTask, deleteTask, createGroup, acceptInvitation, declineInvitation } from '../services/api'
 
 export default function Home() {
   const navigate = useNavigate()
+  const [userId, setUserId] = useState(null);
 
   // Check token validity on mount
   useEffect(() => {
@@ -44,6 +57,16 @@ export default function Home() {
       console.log('Invalid token detected in Home, redirecting to login');
       localStorage.removeItem('authToken');
       navigate('/login');
+    } else {
+      // Get user ID from token
+      try {
+        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        if (tokenData && tokenData.user_id) {
+          setUserId(tokenData.user_id);
+        }
+      } catch (error) {
+        console.error('Error parsing token data:', error);
+      }
     }
   }, [navigate]);
 
@@ -67,8 +90,34 @@ export default function Home() {
     }
   };
 
+  const fetchTasks = async () => {
+    try {
+      const response = await getTasks();
+      const tasks = response.data.tasks || [];
+      setTasks(tasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
+  const fetchInvitations = async () => {
+    try {
+      const response = await getInvitations();
+      const invitations = response.data.invitations || [];
+      setInvites(invitations);
+    } catch (error) {
+      console.error('Error fetching invitations:', error);
+    } finally {
+      setInvitesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchGroup();
+    fetchTasks();
+    fetchInvitations();
   }, [navigate]);
 
   const handleLeaveGroup = async (group) => {
@@ -81,6 +130,26 @@ export default function Home() {
         }
   };
 
+  const handleRespondToInvitation = async (invitation, accept) => {
+    try {
+      if (accept) {
+        await acceptInvitation(invitation.group_id);
+        // After accepting, refresh both invitations and groups
+        setInvitesLoading(true);
+        setGroupLoading(true);
+        fetchInvitations();
+        fetchGroup();
+      } else {
+        await declineInvitation(invitation.group_id);
+        // After declining, just refresh invitations
+        setInvitesLoading(true);
+        fetchInvitations();
+      }
+    } catch (error) {
+      console.error('Error responding to invitation:', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
           await logout()
@@ -90,19 +159,198 @@ export default function Home() {
         }
   };
 
+  // Task creation state
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    due_date: '',
+    group_id: '',
+    assigned_to: []
+  });
+  const [taskErrors, setTaskErrors] = useState({});
+  const [taskCreating, setTaskCreating] = useState(false);
+
+  const handleTaskDialogOpen = () => {
+    // Check if user has any groups first
+    if (groups.length === 0) {
+      // No groups, show alert and redirect to create group
+      alert("You need to create a group before creating tasks. Let's create a group first.");
+      handleCreateDefaultGroup();
+      return;
+    }
+    
+    setOpenTaskDialog(true);
+    // Reset form
+    setNewTask({
+      title: '',
+      description: '',
+      due_date: '',
+      group_id: groups.length > 0 ? groups[0].id : '',
+      assigned_to: []
+    });
+    setTaskErrors({});
+  };
+
+  const handleCreateDefaultGroup = async () => {
+    try {
+      const groupName = prompt("Please enter a name for your new group:");
+      if (!groupName) return; // User cancelled
+      
+      const response = await createGroup(groupName, "");
+      if (response.data && response.data.group) {
+        // Refresh groups
+        setGroupLoading(true);
+        fetchGroup();
+      }
+    } catch (error) {
+      console.error('Error creating group:', error);
+      alert("Failed to create group. Please try again.");
+    }
+  };
+
+  const handleTaskDialogClose = () => {
+    setOpenTaskDialog(false);
+  };
+
+  const handleTaskInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewTask(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when field is edited
+    if (taskErrors[name]) {
+      setTaskErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateTaskForm = () => {
+    const errors = {};
+    
+    if (!newTask.title.trim()) {
+      errors.title = 'Title is required';
+    }
+    
+    if (!newTask.group_id) {
+      errors.group_id = 'Please select a group';
+    }
+    
+    if (!newTask.due_date) {
+      errors.due_date = 'Due date is required';
+    }
+    
+    setTaskErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreateTask = async () => {
+    if (!validateTaskForm()) return;
+    
+    setTaskCreating(true);
+    try {
+      // Format the date for ISO format
+      const formattedTask = {
+        ...newTask,
+        due_date: new Date(newTask.due_date).toISOString(),
+        assigned_to: userId ? [userId] : []
+      };
+      
+      await createTask(formattedTask);
+      setTaskCreating(false);
+      handleTaskDialogClose();
+      
+      // Refresh tasks
+      setTasksLoading(true);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error creating task:', error);
+      setTaskCreating(false);
+    }
+  };
+
   const [groups, setGroups] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [invites, setInvites] = useState([]);
   const [groupLoading, setGroupLoading] = useState(true);
+  const [tasksLoading, setTasksLoading] = useState(true);
+  const [invitesLoading, setInvitesLoading] = useState(true);
 
-  // Mock data for demonstration
-  const [tasks] = useState([
-    { id: 1, title: 'Complete project report', dueDate: '2023-06-15' },
-    { id: 2, title: 'Prepare presentation', dueDate: '2023-06-10' },
-  ])
+  // Task search functionality
+  const [taskSearchTerm, setTaskSearchTerm] = useState('');
+  
+  // Filter tasks by user's groups and search term
+  const userGroupIds = groups.map(group => group.id);
+  const userTasks = tasks.filter(task => 
+    userGroupIds.includes(task.group_id) || 
+    (task.assigned_to && task.assigned_to.includes(userId))
+  );
+  
+  const filteredTasks = userTasks.filter(task => 
+    task.title.toLowerCase().includes(taskSearchTerm.toLowerCase())
+  );
 
-  const [invites] = useState([
-    { id: 1, groupName: 'Team Gamma', from: 'john.doe@example.com' },
-    { id: 2, groupName: 'Project Delta', from: 'jane.smith@example.com' },
-  ])
+  // Debug logging
+  useEffect(() => {
+    console.log('Current user ID:', userId);
+    console.log('User group IDs:', userGroupIds);
+    console.log('Available tasks:', tasks);
+    console.log('Filtered tasks for user:', userTasks);
+  }, [userId, userGroupIds, tasks, userTasks]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No due date';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (error) {
+      console.error('Invalid date format:', dateString);
+      return 'Invalid date';
+    }
+  };
+
+  // Get today's date in YYYY-MM-DD format for the date input min value
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Confirmation dialog for deleting tasks
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteTask = (task) => {
+    setTaskToDelete(task);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteTask = async () => {
+    if (!taskToDelete) return;
+    
+    setDeleteLoading(true);
+    try {
+      await deleteTask(taskToDelete.id);
+      setDeleteLoading(false);
+      setDeleteDialogOpen(false);
+      
+      // Remove the task from state
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskToDelete.id));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      setDeleteLoading(false);
+    }
+  };
+
+  const cancelDeleteTask = () => {
+    setDeleteDialogOpen(false);
+    setTaskToDelete(null);
+  };
 
   return (
     <>
@@ -143,6 +391,8 @@ export default function Home() {
                   variant="outlined"
                   size="small"
                   margin="normal"
+                  value={taskSearchTerm}
+                  onChange={(e) => setTaskSearchTerm(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -154,28 +404,53 @@ export default function Home() {
 
                 {/* Task List */}
                 <Paper variant="outlined" sx={{ mt: 2, maxHeight: 300, overflow: 'auto' }}>
-                  <List>
-                    {tasks.map((task) => (
-                      <React.Fragment key={task.id}>
+                  {tasksLoading ? (
+                    <Box display="flex" justifyContent="center" mt={4}>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <List>
+                      {filteredTasks.map((task) => {
+                        const groupName = groups.find(g => g.id === task.group_id)?.name || `Group #${task.group_id}`;
+                        return (
+                        <React.Fragment key={task.id}>
+                          <ListItem>
+                            <ListItemText
+                              primary={task.title}
+                              secondary={`Group: ${groupName} • Due: ${formatDate(task.due_date)} • Status: ${task.status}`}
+                            />
+                            <ListItemSecondaryAction>
+                              <Tooltip title="Delete Task">
+                                <IconButton 
+                                  edge="end" 
+                                  aria-label="delete" 
+                                  onClick={() => handleDeleteTask(task)}
+                                  color="error"
+                                  size="small"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                          <Divider />
+                        </React.Fragment>
+                      )})}
+                      {filteredTasks.length === 0 && (
                         <ListItem>
-                          <ListItemText
-                            primary={task.title}
-                            secondary={`Due: ${task.dueDate}`}
-                          />
+                          <ListItemText primary="No tasks found" />
                         </ListItem>
-                        <Divider />
-                      </React.Fragment>
-                    ))}
-                    {tasks.length === 0 && (
-                      <ListItem>
-                        <ListItemText primary="No tasks found" />
-                      </ListItem>
-                    )}
-                  </List>
+                      )}
+                    </List>
+                  )}
                 </Paper>
               </CardContent>
               <CardActions>
-                <Button startIcon={<AddIcon />} size="small">
+                <Button 
+                  startIcon={<AddIcon />} 
+                  size="small"
+                  onClick={handleTaskDialogOpen}
+                >
                   Add New Task
                 </Button>
               </CardActions>
@@ -245,38 +520,176 @@ export default function Home() {
                 </Typography>
 
                 <Paper variant="outlined" sx={{ maxHeight: 300, overflow: 'auto' }}>
-                  <List>
-                    {invites.map((invite) => (
-                      <React.Fragment key={invite.id}>
+                  {invitesLoading ? (
+                    <Box display="flex" justifyContent="center" mt={4}>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <List>
+                      {invites.filter(invite => invite.status === 'sent').map((invite) => (
+                        <React.Fragment key={invite.id}>
+                          <ListItem>
+                            <ListItemText
+                              primary={`Join Group: ${invite.group_name}`}
+                              secondary={`From: ${invite.inviter_email || 'Unknown'} • Date: ${new Date(invite.invite_date).toLocaleDateString()}`}
+                            />
+                            <ListItemSecondaryAction>
+                              <IconButton 
+                                color="success" 
+                                edge="end" 
+                                aria-label="accept" 
+                                sx={{ mr: 1 }}
+                                onClick={() => handleRespondToInvitation(invite, true)}
+                              >
+                                <CheckIcon />
+                              </IconButton>
+                              <IconButton 
+                                color="error" 
+                                edge="end" 
+                                aria-label="decline"
+                                onClick={() => handleRespondToInvitation(invite, false)}
+                              >
+                                <CloseIcon />
+                              </IconButton>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                          <Divider />
+                        </React.Fragment>
+                      ))}
+                      {invites.filter(invite => invite.status === 'sent').length === 0 && (
                         <ListItem>
-                          <ListItemText
-                            primary={`Join ${invite.groupName}`}
-                            secondary={`From: ${invite.from}`}
-                          />
-                          <ListItemSecondaryAction>
-                            <IconButton color="success" edge="end" aria-label="accept" sx={{ mr: 1 }}>
-                              <CheckIcon />
-                            </IconButton>
-                            <IconButton color="error" edge="end" aria-label="decline">
-                              <CloseIcon />
-                            </IconButton>
-                          </ListItemSecondaryAction>
+                          <ListItemText primary="No pending invitations" />
                         </ListItem>
-                        <Divider />
-                      </React.Fragment>
-                    ))}
-                    {invites.length === 0 && (
-                      <ListItem>
-                        <ListItemText primary="No pending invitations" />
-                      </ListItem>
-                    )}
-                  </List>
+                      )}
+                    </List>
+                  )}
                 </Paper>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
       </Container>
+
+      {/* Create Task Dialog */}
+      <Dialog 
+        open={openTaskDialog} 
+        onClose={handleTaskDialogClose} 
+        fullWidth 
+        maxWidth="sm"
+        aria-labelledby="task-dialog-title"
+        closeAfterTransition={false}
+      >
+        <DialogTitle id="task-dialog-title">Create New Task</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="title"
+            name="title"
+            label="Task Title"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newTask.title}
+            onChange={handleTaskInputChange}
+            error={!!taskErrors.title}
+            helperText={taskErrors.title}
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField
+            margin="dense"
+            id="description"
+            name="description"
+            label="Description"
+            type="text"
+            fullWidth
+            variant="outlined"
+            multiline
+            rows={3}
+            value={newTask.description}
+            onChange={handleTaskInputChange}
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField
+            margin="dense"
+            id="due_date"
+            name="due_date"
+            label="Due Date"
+            type="date"
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            value={newTask.due_date}
+            onChange={handleTaskInputChange}
+            error={!!taskErrors.due_date}
+            helperText={taskErrors.due_date}
+            inputProps={{ min: getTodayString() }}
+            sx={{ mb: 2 }}
+          />
+          
+          <FormControl fullWidth variant="outlined" error={!!taskErrors.group_id} sx={{ mb: 2 }}>
+            <InputLabel id="group-select-label">Group</InputLabel>
+            <Select
+              labelId="group-select-label"
+              id="group_id"
+              name="group_id"
+              value={newTask.group_id}
+              onChange={handleTaskInputChange}
+              label="Group"
+            >
+              {groups.map((group) => (
+                <MenuItem key={group.id} value={group.id}>
+                  {group.name}
+                </MenuItem>
+              ))}
+            </Select>
+            {taskErrors.group_id && <FormHelperText>{taskErrors.group_id}</FormHelperText>}
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleTaskDialogClose} disabled={taskCreating}>Cancel</Button>
+          <Button 
+            onClick={handleCreateTask} 
+            variant="contained" 
+            color="primary"
+            disabled={taskCreating}
+            startIcon={taskCreating ? <CircularProgress size={20} /> : null}
+          >
+            {taskCreating ? 'Creating...' : 'Create Task'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Task Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={cancelDeleteTask}
+        aria-labelledby="delete-dialog-title"
+        closeAfterTransition={false}
+      >
+        <DialogTitle id="delete-dialog-title">Delete Task</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete the task "{taskToDelete?.title}"?
+            This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDeleteTask} disabled={deleteLoading}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmDeleteTask} 
+            color="error" 
+            disabled={deleteLoading}
+            startIcon={deleteLoading ? <CircularProgress size={20} /> : null}
+          >
+            {deleteLoading ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 } 

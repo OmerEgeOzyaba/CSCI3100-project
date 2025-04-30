@@ -67,7 +67,7 @@ jwt = JWTManager(app) # initialize JWT
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(user_bp, url_prefix='/api/users')
-app.register_blueprint(invitation_bp, url_prefix='/api/invitations')
+app.register_blueprint(invitation_bp, url_prefix='/api/invites')
 app.register_blueprint(task_bp, url_prefix='/api/tasks')
 app.register_blueprint(group_bp, url_prefix='/api/groups')
 
