@@ -18,6 +18,7 @@ from routes.group_routes import group_bp
 
 from extensions import redis_client
 from services.auth_service import AuthService
+from services.user_service import UserService
 
 # loads properties.env
 load_dotenv()
@@ -76,11 +77,14 @@ app.register_blueprint(group_bp, url_prefix='/api/groups')
 # configure redis [configured in extensions.py]
 # create AuthService object for the whole program
 auth_service = AuthService(redis_client)
+user_service = UserService()
 app.extensions = getattr(app, "extensions", {})
 app.extensions['auth_service'] = auth_service
+app.extensions['user_service'] = user_service
 @app.before_request
 def before_request():
     g.auth_service = auth_service
+    g.user_service = user_service
 
 
 # blacklist checker [might not need it]
