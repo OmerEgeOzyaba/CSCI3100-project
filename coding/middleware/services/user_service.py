@@ -33,8 +33,7 @@ class UserService:
 
             new_user = User(email = email,
                             password = generate_password_hash(password),
-                            created_at = datetime.utcnow(),
-                            license_key = entered_license_key)
+                            created_at = datetime.utcnow())
 
             session.add(new_user)
             session.commit()

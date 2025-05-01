@@ -15,7 +15,6 @@ class User(Base):
 
     email: Mapped[String] = mapped_column(String, primary_key=True)
     password: Mapped[String] = mapped_column(String, nullable=False)
-    license_key: Mapped[String] = mapped_column(String, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
     invitations_received: Mapped[list['Membership']] = relationship("Membership", back_populates="invited_user", foreign_keys="[Membership.user_id]")
@@ -32,12 +31,6 @@ class User(Base):
 
     def set_password(self, password: Mapped[String]):
         self.password = password
-
-    def get_license_key(self):
-        return self.license_key
-
-    def set_license_key(self, license_key: Mapped[String]):
-        self.license_key = license_key
 
     def get_created_at(self):
         return self.created_at
