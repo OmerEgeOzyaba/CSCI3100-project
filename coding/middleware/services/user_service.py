@@ -8,7 +8,7 @@ from datetime import datetime
 class UserService:
     def __init__(self):
         self.db = Database()
-    def create_user(self, email, password, license_key):
+    def create_user(self, email, password, entered_license_key):
         if not self._validate_email(email):
             return None, "Invalid email format"
         
@@ -21,7 +21,7 @@ class UserService:
             if session.query(User).filter(User.email == email).first():
                 return None, "Email already registered"
 
-            soft_license = session.query(SoftwareLicense).filter(SoftwareLicense.key == license_key).with_for_update()
+            soft_license = session.query(SoftwareLicense).filter(SoftwareLicense.key == entered_license_key).with_for_update()
 
             if not soft_license.first():
                 return None, "Invalid software license"
@@ -33,7 +33,8 @@ class UserService:
 
             new_user = User(email = email,
                             password = generate_password_hash(password),
-                            created_at = datetime.utcnow())
+                            created_at = datetime.utcnow(),
+                            license_key = entered_license_key)
 
             session.add(new_user)
             session.commit()

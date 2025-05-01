@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from datetime import datetime
+from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 
 class TestUserService:
@@ -10,7 +10,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="test@example.com",
                 password="ValidPass123!",
-                license_key="valid-license"
+                entered_license_key="valid-license"
                 )
 
         assert message == "Added new user"
@@ -21,7 +21,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="invalid-email",
                 password="ValidPass123!",
-                license_key="valid-license")
+                entered_license_key="valid-license")
 
         assert user is None
         assert message == "Invalid email format"
@@ -30,7 +30,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email = "valid@example.com",
                 password = "weak",
-                license_key="valid-license")
+                entered_license_key="valid-license")
 
         assert user is None
         assert "Password must be between 8-32 characters" in message
@@ -40,7 +40,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="existing@example.com",
                 password="ValidPass123!",
-                license_key="valid-license")
+                entered_license_key="valid-license")
 
         assert user is None
         assert message == "Email already registered"
@@ -51,7 +51,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="valid@example.com",
                 password="ValidPass123!", 
-                license_key="invalid-license")
+                entered_license_key="invalid-license")
 
         assert user is None
         assert message == "Invalid software license"
@@ -62,7 +62,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="valid@example.com", 
                 password="ValidPass123!",
-                license_key="used-license")
+                entered_license_key="used-license")
 
         assert user is None
         assert message == "Software license already used"
@@ -73,7 +73,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="valid@example.com",
                 password="ValidPass123!",
-                license_key="valid-license")
+                entered_license_key="valid-license")
 
         assert user is None
         assert "User registration failed" in message
@@ -88,7 +88,7 @@ class TestUserRoutes:
         mocker.patch(
                 'services.user_service.UserService.create_user',
                 return_value=(Mock(email=mock_user_data['email'],
-                              created_at = datetime.utcnow()),
+                              created_at = datetime.now(timezone.utc), license_key = mock_user_data['licenseKey']),
                               "Added new user")
 
                 )

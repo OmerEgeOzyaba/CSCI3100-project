@@ -4,6 +4,7 @@ from datetime import timedelta
 from middleware_app import app as flask_app
 from database import Database
 from flask_jwt_extended import create_access_token
+from unittest.mock import Mock
 
 ############# AUTH RELATED #############
 
@@ -44,15 +45,6 @@ def test_user_token(test_app):
         return create_access_token('test@example.com')
 
 ############# USER RELATED #############
-
-@pytest.fixture
-def mock_db_session(mocker):
-    mock_session = mock.Mock()
-    mock_session.query.return_value.filter.return_value = mock_session
-    mock_session.query.return_value.filter.return_value.first.return_value = None
-    mock_session.query.return_value.with_for_update.return_value = mock_session
-
-    return mock_session
 
 
 @pytest.fixture
