@@ -6,73 +6,13 @@ from flask_jwt_extended import (
         verify_jwt_in_request
         )
 from services.auth_service import AuthService
-from middleware_data_classes import User
-from database import Database
-from werkzeug.security import generate_password_hash
-from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
-
-# Handle OPTIONS request for signup
-@auth_bp.route('/signup', methods=['OPTIONS'])
-def handle_signup_options():
-    return '', 200
 
 # Handle OPTIONS request for logout
 @auth_bp.route('/logout', methods=['OPTIONS'])
 def handle_logout_options():
     return '', 200
-
-# Signup endpoint
-@auth_bp.route('/signup', methods=['POST'])
-def signup():
-    if not request.is_json:
-        return jsonify({"error": "Request must be JSON"}), 400
-
-    email = request.json.get("email")
-    password = request.json.get("password")
-    license_key = request.json.get("licenseKey")
-
-    if not email or not password or not license_key:
-        return jsonify({"error": "Missing required fields"}), 400
-
-    # Validate email format
-    if not '@' in email or not '.' in email:
-        return jsonify({"error": "Invalid email format"}), 400
-
-    # Validate password length
-    if len(password) < 8:
-        return jsonify({"error": "Password must be at least 8 characters"}), 400
-
-    db = Database().get_session()
-    try:
-        # Check if user already exists
-        existing_user = db.query(User).filter(User.email == email).first()
-        if existing_user:
-            return jsonify({"error": "Email already registered"}), 409
-
-        # Create new user with current timestamp
-        new_user = User(
-            email=email,
-            password=generate_password_hash(password),
-            license_key=license_key,
-            created_at=datetime.utcnow()
-        )
-        
-        db.add(new_user)
-        db.commit()
-        
-        return jsonify({
-            "msg": "User registered successfully",
-            "user": {"email": email}
-        }), 201
-
-    except Exception as e:
-        db.rollback()
-        current_app.logger.error(f"Signup error: {str(e)}")
-        return jsonify({"error": "Registration failed"}), 500
-    finally:
-        db.close()
 
 # login endpoint
 @auth_bp.route('/login', methods=['POST'])
