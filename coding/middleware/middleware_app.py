@@ -192,8 +192,63 @@ def after_request(response):
     print(f"Response headers: {response.headers}")
     return response
 
+#=========================================================================
+# Task filtering by group
+def get_tasks_by_group(user_email, group_id):
+    """
+    Retrieve tasks for a specific user and group.
+
+    :param user_email: The email of the user.
+    :param group_id: The ID of the group.
+    :return: A list of tasks belonging to the user and group.
+    """
+    try:
+        db = Database().get_session()
+
+        # Verify the user is a member of the group with ACCEPTED status
+        membership = db.query(Membership).filter(
+            and_(
+                Membership.user_id == user_email,
+                Membership.group_id == group_id,
+                Membership.status == InvitationStatus.ACCEPTED
+            )
+        ).first()
+
+        if not membership:
+            return []
+
+        # Retrieve tasks for the user and group
+        tasks = db.query(Task).filter(
+            and_(
+                Task.group_id == group_id,
+                Task.assigned_to.contains(user_email)  # Assuming `assigned_to` is a list of emails
+            )
+        ).all()
+
+        return tasks
+    except Exception as e:
+        current_app.logger.error(f"Error fetching tasks by group: {str(e)}")
+        return []
+    finally:
+        db.close()
+
+@app.route('/api/tasks/group/<int:group_id>', methods=['GET'])
+@jwt_required()
+def test_get_tasks_by_group(group_id):
+    """
+    Test endpoint for get_tasks_by_group function.
+    """
+    try:
+        user_email = get_jwt_identity()  # Get the current user's email from the JWT
+        tasks = get_tasks_by_group(user_email, group_id)
+        return jsonify({"tasks": [task_to_dict(task) for task in tasks]}), 200
+    except Exception as e:
+        current_app.logger.error(f"Error in test_get_tasks_by_group: {str(e)}")
+        return jsonify({"error": "Failed to fetch tasks"}), 500
+
 if __name__ == '__main__':
     # Get port from environment variable with default fallback to 5001
     port = int(os.getenv("SERVER_PORT", 5000))
     print(f"Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=True)
+
