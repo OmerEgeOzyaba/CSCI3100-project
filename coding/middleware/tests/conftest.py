@@ -5,6 +5,8 @@ from middleware_app import app as flask_app
 from database import Database
 from flask_jwt_extended import create_access_token
 
+############# AUTH RELATED #############
+
 @pytest.fixture(scope='session')
 def test_app():
     """ Central app configuration for all tests"""
@@ -41,3 +43,33 @@ def test_user_token(test_app):
     with test_app.app_context():
         return create_access_token('test@example.com')
 
+############# USER RELATED #############
+
+@pytest.fixture
+def mock_db_session(mocker):
+    mock_session = mock.Mock()
+    mock_session.query.return_value.filter.return_value = mock_session
+    mock_session.query.return_value.filter.return_value.first.return_value = None
+    mock_session.query.return_value.with_for_update.return_value = mock_session
+
+    return mock_session
+
+
+@pytest.fixture
+def user_service(test_app):
+    with test_app.app_context():
+        return test_app.extensions['user_service']
+
+@pytest.fixture
+def mock_user_data():
+    return {"email": "test@example.com",
+            "password" : "ValidPass123!",
+            "licenseKey": "test-license-123"}
+
+@pytest.fixture
+def created_user(user_service, mock_db_session):
+    mock_user = Mock(email = "existing@example.com",
+                     created_at=datetime.utcnow(),
+                     password=generate_password_hash("ValidPass123!"))
+    mock_db_session.query.return_value.felter.return_value.first.return_value = mock_user
+    return mock_user

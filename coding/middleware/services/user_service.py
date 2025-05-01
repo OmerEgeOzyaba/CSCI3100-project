@@ -1,6 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from middleware.middleware_data_classes import User
-from middleware.middleware_data_classes import SoftwareLicense
+from middleware_data_classes import User, SoftwareLicense
 from database import Database
 import re
 from typing import Tuple, Optional
@@ -30,7 +29,7 @@ class UserService:
             if soft_license.first().used_status:
                 return None, "Software license already used"
 
-            soft_license.update({"used_status"}: 1)
+            soft_license.update({"used_status": 1})
 
             new_user = User(email = email,
                             password = generate_password_hash(password),
@@ -47,8 +46,8 @@ class UserService:
             session.close()
 
     def _enforce_password_policy(self, password):
-        if len(password)<8 or not re.search(r"[A-Z]", password) or not re.search(r"[a-z]", password) or not re.search(r"\d", password) or not re.search(r"[!@#$%^&*()_+=-]", password):
-            return "Password must be at least 8 characters and contain an uppercase letter, a lowercase letter, a number, and a special character"
+        if len(password)<8 or len(password)>32 or not re.search(r"[A-Z]", password) or not re.search(r"[a-z]", password) or not re.search(r"\d", password) or not re.search(r"[!@#$%^&*()_+=-]", password):
+            return "Password must be between 8-32 characters and contain an uppercase letter, a lowercase letter, a number, and a special character"
     def _validate_email(self, email):
         pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         return bool(re.fullmatch(pattern, email))
