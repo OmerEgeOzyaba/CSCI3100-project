@@ -25,10 +25,10 @@ class TestAuthRoutes:
                                content_type = 'application/json')
 
         assert response.status_code == 200
-        assert 'auth_token' in response.json
+        assert 'access_token' in response.json
         assert response.json['user']['email'] == 'test@example.com'
 
-        token = response.json['auth_token']
+        token = response.json['access_token']
         decoded = decode_token(token)
         assert decoded['sub'] == 'test@example.com'
         assert 'jti' in decoded
@@ -49,7 +49,7 @@ class TestAuthRoutes:
         login_res = client.post('/api/auth/login',
                                 json = {'email':'test@example.com', 'password':'password'})
 
-        token = login_res.json['auth_token']
+        token = login_res.json['access_token']
         jti = decode_token(token)['jti']
 
         logout_res = client.post('/api/auth/logout', 
