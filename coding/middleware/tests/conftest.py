@@ -5,6 +5,7 @@ from middleware_app import app as flask_app
 from database import Database
 from flask_jwt_extended import create_access_token
 from unittest.mock import Mock
+from services.user_service import UserService
 
 ############# AUTH RELATED #############
 
@@ -46,11 +47,28 @@ def test_user_token(test_app):
 
 ############# USER RELATED #############
 
+@pytest.fixture
+def mock_db_session(mock_database):
+    """Mock database session fixture"""
+    session = mock_database.get_session.return_value
+    session.query.return_value.filter.return_value.first.return_value = None
+    session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = None
+    return session
 
 @pytest.fixture
-def user_service(test_app):
+def mock_database(mocker):
+    """Mock Database class fixture"""
+    mock_db = mocker.MagicMock()
+    mock_session = mocker.MagicMock()
+    mock_db.get_session.return_value = mock_session
+    return mock_db
+
+@pytest.fixture
+def user_service(test_app, mock_database):
     with test_app.app_context():
-        return test_app.extensions['user_service']
+        service = UserService()
+        service.db = mock_database
+        return service
 
 @pytest.fixture
 def mock_user_data():

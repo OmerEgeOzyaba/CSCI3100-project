@@ -109,8 +109,6 @@ def create_user():
 
     email = new_user.email
     created_at = new_user.created_at
-    license_key = new_user.license_key
     return jsonify({"user": email,
-                    "created_at": created_at,
-                    "license_key": license_key}), 201
+                    "created_at": created_at}), 201
 

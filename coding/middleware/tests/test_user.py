@@ -5,12 +5,14 @@ from werkzeug.security import generate_password_hash
 
 class TestUserService:
     def test_create_user_success(self, user_service, mock_db_session):
-        mock_db_session.query.return_value.filter.return_value.first.side_effect = [None, Mock(used_status=0)]
+        user_service.db.get_session.return_value.query.return_value.filter.return_value.first.return_value = None
+        #mock_session = user_service.db.get_session.return_value
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status=0)
 
         user, message = user_service.create_user(
                 email="test@example.com",
                 password="ValidPass123!",
-                entered_license_key="valid-license"
+                license_key="valid-license"
                 )
 
         assert message == "Added new user"
@@ -21,7 +23,7 @@ class TestUserService:
         user, message = user_service.create_user(
                 email="invalid-email",
                 password="ValidPass123!",
-                entered_license_key="valid-license")
+                license_key="valid-license")
 
         assert user is None
         assert message == "Invalid email format"
@@ -30,50 +32,55 @@ class TestUserService:
         user, message = user_service.create_user(
                 email = "valid@example.com",
                 password = "weak",
-                entered_license_key="valid-license")
+                license_key="valid-license")
 
         assert user is None
         assert "Password must be between 8-32 characters" in message
     def test_create_user_existing_email(self, user_service, mock_db_session):
+        #mock_session = user_service.db.get_session.return_value
         mock_db_session.query.return_value.filter.return_value.first.return_value = Mock()
 
         user, message = user_service.create_user(
                 email="existing@example.com",
                 password="ValidPass123!",
-                entered_license_key="valid-license")
+                license_key="valid-license")
 
         assert user is None
         assert message == "Email already registered"
 
     def test_create_user_invalid_license(self, user_service, mock_db_session):
         mock_db_session.query.return_value.filter.return_value.first.return_value = None
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = None
 
         user, message = user_service.create_user(
                 email="valid@example.com",
                 password="ValidPass123!", 
-                entered_license_key="invalid-license")
+                license_key="invalid-license")
 
         assert user is None
         assert message == "Invalid software license"
 
     def test_create_user_used_license(self, user_service, mock_db_session):
-        mock_db_session.query.return_value.filter.return_value.first.return_value = Mock(used_status=1)
+        mock_db_session.query.return_value.filter.return_value.first.return_value = None
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status = 1)
 
         user, message = user_service.create_user(
                 email="valid@example.com", 
                 password="ValidPass123!",
-                entered_license_key="used-license")
+                license_key="used-license")
 
         assert user is None
         assert message == "Software license already used"
 
     def test_create_user_database_error(self, user_service, mock_db_session):
+        mock_db_session.query.return_value.filter.return_value.first.return_value = None
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status = 0)
         mock_db_session.commit.side_effect = Exception("DB error")
 
         user, message = user_service.create_user(
                 email="valid@example.com",
                 password="ValidPass123!",
-                entered_license_key="valid-license")
+                license_key="valid-license")
 
         assert user is None
         assert "User registration failed" in message
@@ -88,7 +95,7 @@ class TestUserRoutes:
         mocker.patch(
                 'services.user_service.UserService.create_user',
                 return_value=(Mock(email=mock_user_data['email'],
-                              created_at = datetime.now(timezone.utc), license_key = mock_user_data['licenseKey']),
+                              created_at = datetime.now(timezone.utc)),
                               "Added new user")
 
                 )
