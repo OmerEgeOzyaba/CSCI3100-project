@@ -9,11 +9,6 @@ from services.auth_service import AuthService
 
 auth_bp = Blueprint('auth', __name__)
 
-# Handle OPTIONS request for logout
-@auth_bp.route('/logout', methods=['OPTIONS'])
-def handle_logout_options():
-    return '', 200
-
 # login endpoint
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -33,32 +28,21 @@ def login():
         return {"error": "Bad credentials"}, 401
 
     return jsonify({
-            "access_token": auth_token,
+            "auth_token": auth_token,
             "expires_in": int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
-            "user": {"email": email},
-            "token_type": "access"
+            "user": {"email": email}
             }), 200
 
 # logout endpoint
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    try:
-        auth_service = g.auth_service
-        jwt_data = get_jwt()
-        jti = jwt_data["jti"]
-        token_type = jwt_data["type"]
-        
-        if token_type != "access":
-            return jsonify({"error": "Invalid token type"}), 422
-            
-        logout_status = auth_service.logout(jti)
-        if not logout_status:
-            return jsonify({"error": "Logout failed"}), 500
-        return jsonify({"msg": "Logout successful"}), 200
-    except Exception as e:
-        current_app.logger.error(f"Logout error: {str(e)}")
+    auth_service = g.auth_service
+    jti = get_jwt()["jti"] 
+    logout_status = auth_service.logout(jti)
+    if not logout_status: 
         return jsonify({"error": "Logout failed"}), 500
+    return jsonify({"msg": "Logout successful"}), 200
 
 # validate token endpoint [NOT SUPER NEEDED HONESTLY]
 @auth_bp.route('/validate-token', methods=['GET'])

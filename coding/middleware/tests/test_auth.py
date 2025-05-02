@@ -25,14 +25,13 @@ class TestAuthRoutes:
                                content_type = 'application/json')
 
         assert response.status_code == 200
-        assert 'access_token' in response.json
+        assert 'auth_token' in response.json
         assert response.json['user']['email'] == 'test@example.com'
 
-        token = response.json['access_token']
+        token = response.json['auth_token']
         decoded = decode_token(token)
         assert decoded['sub'] == 'test@example.com'
         assert 'jti' in decoded
-        assert decoded['type'] == 'access'
 
     def test_login_failure(self, client, mocker):
         mocker.patch.object(Database, 'get_session').return_value.query.return_value.filter.return_value.first.return_value = None
@@ -50,7 +49,7 @@ class TestAuthRoutes:
         login_res = client.post('/api/auth/login',
                                 json = {'email':'test@example.com', 'password':'password'})
 
-        token = login_res.json['access_token']
+        token = login_res.json['auth_token']
         jti = decode_token(token)['jti']
 
         logout_res = client.post('/api/auth/logout', 
@@ -58,4 +57,5 @@ class TestAuthRoutes:
 
         assert logout_res.status_code == 200
         assert logout_res.json == {"msg":"Logout successful"}
-        assert auth_service.redis.exists(f"revoked:{jti}") == 1       
+        assert auth_service.redis.exists(f"revoked:{jti}") == 1   
+
