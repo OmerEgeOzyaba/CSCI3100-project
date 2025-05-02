@@ -37,6 +37,7 @@ class UserService:
 
             session.add(new_user)
             session.commit()
+            session.refresh(new_user)
 
             return new_user, "Added new user"
         except Exception as e:
