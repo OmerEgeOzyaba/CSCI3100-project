@@ -7,7 +7,7 @@ class TestUserService:
     def test_create_user_success(self, user_service, mock_db_session):
         user_service.db.get_session.return_value.query.return_value.filter.return_value.first.return_value = None
         #mock_session = user_service.db.get_session.return_value
-        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status=0)
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status=False)
 
         user, message = user_service.create_user(
                 email="test@example.com",
@@ -62,7 +62,7 @@ class TestUserService:
 
     def test_create_user_used_license(self, user_service, mock_db_session):
         mock_db_session.query.return_value.filter.return_value.first.return_value = None
-        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status = 1)
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status = True)
 
         user, message = user_service.create_user(
                 email="valid@example.com", 
@@ -74,7 +74,7 @@ class TestUserService:
 
     def test_create_user_database_error(self, user_service, mock_db_session):
         mock_db_session.query.return_value.filter.return_value.first.return_value = None
-        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status = 0)
+        mock_db_session.query.return_value.filter.return_value.with_for_update.return_value.first.return_value = Mock(used_status = False)
         mock_db_session.commit.side_effect = Exception("DB error")
 
         user, message = user_service.create_user(

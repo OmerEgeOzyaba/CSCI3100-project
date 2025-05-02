@@ -29,7 +29,7 @@ class UserService:
             if soft_license.first().used_status:
                 return None, "Software license already used"
 
-            soft_license.update({"used_status": 1})
+            soft_license.update({"used_status": True})
 
             new_user = User(email = email,
                             password = generate_password_hash(password),
