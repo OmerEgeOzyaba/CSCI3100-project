@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, g
 from dotenv import load_dotenv
 from middleware_data_classes import create_database
 from database import Database
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, jwt_required
 import os
 import secrets
 from datetime import timedelta
