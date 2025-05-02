@@ -28,7 +28,7 @@ def login():
         return {"error": "Bad credentials"}, 401
 
     return jsonify({
-            "auth_token": auth_token,
+            "access_token": auth_token,
             "expires_in": int(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
             "user": {"email": email}
             }), 200
