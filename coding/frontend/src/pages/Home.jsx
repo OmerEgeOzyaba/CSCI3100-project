@@ -44,7 +44,7 @@ import {
   Edit as EditIcon
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { getGroups, leaveGroup, logout, getTasks, getInvitations, createTask, deleteTask, createGroup, acceptInvitation, declineInvitation } from '../services/api'
+import { getGroups, leaveGroup, logout, getTasks, getInvitations, createTask, updateTask, deleteTask, createGroup, acceptInvitation, declineInvitation } from '../services/api'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -373,6 +373,85 @@ export default function Home() {
     setTaskToDelete(null);
   };
 
+  // Add task editing state
+  const [openEditTaskDialog, setOpenEditTaskDialog] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [editTaskErrors, setEditTaskErrors] = useState({});
+  const [taskUpdating, setTaskUpdating] = useState(false);
+
+  const handleEditTask = (task) => {
+    setTaskToEdit({
+      ...task,
+      due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : ''
+    });
+    setEditTaskErrors({});
+    setOpenEditTaskDialog(true);
+  };
+
+  const handleEditTaskDialogClose = () => {
+    setOpenEditTaskDialog(false);
+    setTaskToEdit(null);
+  };
+
+  const handleEditTaskInputChange = (e) => {
+    const { name, value } = e.target;
+    setTaskToEdit(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when field is edited
+    if (editTaskErrors[name]) {
+      setEditTaskErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateEditTaskForm = () => {
+    const errors = {};
+    
+    if (!taskToEdit.title.trim()) {
+      errors.title = 'Title is required';
+    }
+    
+    if (!taskToEdit.group_id) {
+      errors.group_id = 'Please select a group';
+    }
+    
+    if (!taskToEdit.due_date) {
+      errors.due_date = 'Due date is required';
+    }
+    
+    setEditTaskErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleUpdateTask = async () => {
+    if (!validateEditTaskForm()) return;
+    
+    setTaskUpdating(true);
+    try {
+      // Format the date for ISO format
+      const formattedTask = {
+        ...taskToEdit,
+        due_date: new Date(taskToEdit.due_date).toISOString()
+      };
+      
+      await updateTask(taskToEdit.id, formattedTask);
+      setTaskUpdating(false);
+      handleEditTaskDialogClose();
+      
+      // Refresh tasks
+      setTasksLoading(true);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error updating task:', error);
+      setTaskUpdating(false);
+    }
+  };
+
   return (
     <>
       {/* App Bar Navigation */}
@@ -467,6 +546,18 @@ export default function Home() {
                               secondary={`Group: ${groupName} • Due: ${formatDate(task.due_date)} • Status: ${task.status}`}
                             />
                             <ListItemSecondaryAction>
+                              <Tooltip title="Edit Task">
+                                <IconButton 
+                                  edge="end" 
+                                  aria-label="edit" 
+                                  onClick={() => handleEditTask(task)}
+                                  color="primary"
+                                  size="small"
+                                  sx={{ mr: 1 }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
                               <Tooltip title="Delete Task">
                                 <IconButton 
                                   edge="end" 
@@ -705,6 +796,102 @@ export default function Home() {
             startIcon={taskCreating ? <CircularProgress size={20} /> : null}
           >
             {taskCreating ? 'Creating...' : 'Create Task'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Task Dialog */}
+      <Dialog 
+        open={openEditTaskDialog} 
+        onClose={handleEditTaskDialogClose} 
+        fullWidth 
+        maxWidth="sm"
+        aria-labelledby="edit-task-dialog-title"
+        closeAfterTransition={false}
+      >
+        <DialogTitle id="edit-task-dialog-title">Edit Task</DialogTitle>
+        <DialogContent>
+          {taskToEdit && (
+            <>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="title"
+                name="title"
+                label="Task Title"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={taskToEdit.title}
+                onChange={handleEditTaskInputChange}
+                error={!!editTaskErrors.title}
+                helperText={editTaskErrors.title}
+                sx={{ mb: 2 }}
+              />
+              
+              <TextField
+                margin="dense"
+                id="description"
+                name="description"
+                label="Description"
+                type="text"
+                fullWidth
+                variant="outlined"
+                multiline
+                rows={3}
+                value={taskToEdit.description || ''}
+                onChange={handleEditTaskInputChange}
+                sx={{ mb: 2 }}
+              />
+              
+              <TextField
+                margin="dense"
+                id="due_date"
+                name="due_date"
+                label="Due Date"
+                type="date"
+                fullWidth
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+                value={taskToEdit.due_date}
+                onChange={handleEditTaskInputChange}
+                error={!!editTaskErrors.due_date}
+                helperText={editTaskErrors.due_date}
+                inputProps={{ min: getTodayString() }}
+                sx={{ mb: 2 }}
+              />
+              
+              <FormControl fullWidth variant="outlined" error={!!editTaskErrors.group_id} sx={{ mb: 2 }}>
+                <InputLabel id="edit-group-select-label">Group</InputLabel>
+                <Select
+                  labelId="edit-group-select-label"
+                  id="group_id"
+                  name="group_id"
+                  value={taskToEdit.group_id}
+                  onChange={handleEditTaskInputChange}
+                  label="Group"
+                >
+                  {groups.map((group) => (
+                    <MenuItem key={group.id} value={group.id}>
+                      {group.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {editTaskErrors.group_id && <FormHelperText>{editTaskErrors.group_id}</FormHelperText>}
+              </FormControl>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditTaskDialogClose} disabled={taskUpdating}>Cancel</Button>
+          <Button 
+            onClick={handleUpdateTask} 
+            variant="contained" 
+            color="primary"
+            disabled={taskUpdating}
+            startIcon={taskUpdating ? <CircularProgress size={20} /> : null}
+          >
+            {taskUpdating ? 'Updating...' : 'Update Task'}
           </Button>
         </DialogActions>
       </Dialog>
