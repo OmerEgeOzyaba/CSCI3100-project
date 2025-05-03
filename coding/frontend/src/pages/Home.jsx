@@ -115,9 +115,24 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchGroup();
-    fetchTasks();
-    fetchInvitations();
+    const fetchData = async () => {
+      try {
+        // Fetch groups first
+        await fetchGroup();
+        
+        // Add delay before fetching tasks
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await fetchTasks();
+        
+        // Add delay before fetching invitations
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await fetchInvitations();
+      } catch (error) {
+        console.error('Error in data fetching sequence:', error);
+      }
+    };
+    
+    fetchData();
   }, [navigate]);
 
   const handleLeaveGroup = async (group) => {
@@ -282,6 +297,7 @@ export default function Home() {
 
   // Task search functionality
   const [taskSearchTerm, setTaskSearchTerm] = useState('');
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState('all');
   
   // Filter tasks by user's groups and search term
   const userGroupIds = groups.map(group => group.id);
@@ -291,9 +307,14 @@ export default function Home() {
   );
   
   const filteredTasks = userTasks.filter(task => 
-    task.title.toLowerCase().includes(taskSearchTerm.toLowerCase())
+    task.title.toLowerCase().includes(taskSearchTerm.toLowerCase()) &&
+    (selectedGroupFilter === 'all' || task.group_id === selectedGroupFilter)
   );
 
+  const handleGroupFilterChange = (event) => {
+    setSelectedGroupFilter(event.target.value);
+  };
+  
   // Debug logging
   useEffect(() => {
     console.log('Current user ID:', userId);
@@ -401,6 +422,32 @@ export default function Home() {
                     ),
                   }}
                 />
+
+                {/* Group Filter - Only show when there are groups */}
+                {groups.length > 0 && (
+                  <FormControl 
+                    fullWidth 
+                    variant="outlined" 
+                    size="small" 
+                    margin="normal"
+                  >
+                    <InputLabel id="group-filter-label">Filter by Group</InputLabel>
+                    <Select
+                      labelId="group-filter-label"
+                      id="group-filter"
+                      value={selectedGroupFilter}
+                      onChange={handleGroupFilterChange}
+                      label="Filter by Group"
+                    >
+                      <MenuItem value="all">All Groups</MenuItem>
+                      {groups.map((group) => (
+                        <MenuItem key={group.id} value={group.id}>
+                          {group.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
 
                 {/* Task List */}
                 <Paper variant="outlined" sx={{ mt: 2, maxHeight: 300, overflow: 'auto' }}>

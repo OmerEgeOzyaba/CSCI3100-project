@@ -95,6 +95,7 @@ export const getGroups = async () => {
     return response
   } catch (error) {
     console.error("API: getGroups error", error)
+    console.log("API: getGroups error", error.response.data)
     throw error
   }
 }
