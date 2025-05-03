@@ -52,6 +52,9 @@ def create_user():
     new_user, error = user_service.create_user(email, password, license_key)
 
     if not new_user:
+        print(error)
+        if "Invalid software license" in error:
+            return jsonify({"error": error}), 401
         if "User registration failed" in error:
             current_app.logger.error(f"{error}")
             return jsonify({"error": error}), 500

@@ -22,6 +22,16 @@ export default function SignUp() {
 
     const isValidEmail = (email) =>
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        
+    const isValidPassword = (password) => {
+        const hasLength = password.length >= 8 && password.length <= 32;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        return hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
+    };
 
     const handleSubmit = async () => {
         setNetworkError('');
@@ -34,8 +44,8 @@ export default function SignUp() {
             return;
         }
 
-        if (password.length < 8) {
-            setPasswordError('Password must be at least 8 characters long.');
+        if (!isValidPassword(password)) {
+            setPasswordError('Password must be between 8-32 characters and contain an uppercase letter, a lowercase letter, a number, and a special character.');
             return;
         }
 
@@ -49,12 +59,22 @@ export default function SignUp() {
 
             if (response.status === 201) {
                 navigate('/login');
+            } else if (response.status === 401) {
+                setLicenseError(response.data.msg || 'Invalid software license.');
             } else {
                 setNetworkError(response.data.msg || 'Signup failed. Please try again.');
             }
         } catch (err) {
-            setNetworkError('Network error. Please try again.');
-            console.error(err)
+            console.error(err);
+            if (err.response) {
+                if (err.response.status === 401) {
+                    setLicenseError(err.response.data.msg || 'Invalid software license.');
+                } else {
+                    setNetworkError(err.response.data.msg || 'Signup failed. Please try again.');
+                }
+            } else {
+                setNetworkError('Network error. Please try again.');
+            }
         }
     };
 
@@ -93,7 +113,7 @@ export default function SignUp() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         error={!!passwordError}
-                        helperText={passwordError || 'Minimum 8 characters'}
+                        helperText={passwordError || 'Must be 8-32 characters with uppercase, lowercase, number, and special character'}
                     />
                     <TextField
                         label="License Key"
