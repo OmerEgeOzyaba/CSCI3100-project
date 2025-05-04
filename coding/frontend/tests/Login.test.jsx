@@ -11,6 +11,8 @@ vi.mock('axios');
 import { axiosInstance } from 'axios';
 
 describe('Login', () => {
+    const token = "eyJhbGciOiJIUzI1NiJ9.e30.2-w724PWbrMu69daqBElQGCDvL8hJdAKn3ChxHrjxxA"
+
     test('renders the login form fields', () => {
 
         render(
@@ -28,12 +30,12 @@ describe('Login', () => {
     test('submits working email and password', async () => {          
         axiosInstance.post.mockResolvedValue({
             status: 200,
-            data: { access_token: 'token123' },
+            data: { access_token: token, user: {email: 'user@example.com'} },
         })
 
         axiosInstance.get.mockResolvedValue({
             status: 200,
-            data: { groups: [] },
+            data: { groups: [], tasks: [], invitations: [] },
         })
 
         const user = userEvent.setup();
@@ -48,14 +50,14 @@ describe('Login', () => {
         );
 
         await user.type(screen.getByLabelText("Email"), 'user@example.com');
-        await user.type(screen.getByLabelText("Password"), 'pass123');
+        await user.type(screen.getByLabelText("Password"), 'Pass1234!');
         await user.click(screen.getByRole('button', { name: "Login" }));
 
         await waitFor(() => {
 
             expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/login', {
                 email: 'user@example.com',
-                password: 'pass123',
+                password: 'Pass1234!',
             });
 
             expect(screen.queryByRole('Alert')).not.toBeInTheDocument();
@@ -81,14 +83,14 @@ describe('Login', () => {
         );
 
         await user.type(screen.getByLabelText("Email"), 'user@example.com');
-        await user.type(screen.getByLabelText("Password"), 'pass123');
+        await user.type(screen.getByLabelText("Password"), 'Pass1234!');
         await user.click(screen.getByRole('button', { name: "Login" }));
 
         await waitFor(() => {
 
             expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/login', {
                 email: 'user@example.com',
-                password: 'pass123',
+                password: 'Pass1234!',
             });
 
             expect(screen.getByRole("alert")).toBeInTheDocument();

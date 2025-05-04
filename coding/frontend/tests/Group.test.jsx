@@ -139,11 +139,14 @@ const test_members_group = {
 }
 
 describe('Group', () => {
+    const token = "eyJhbGciOiJIUzI1NiJ9.e30.2-w724PWbrMu69daqBElQGCDvL8hJdAKn3ChxHrjxxA"
+    localStorage.setItem("authToken", token);
+
     test('renders the group form fields', async () => {
         axiosInstance.get.mockResolvedValue({
             status: 200,
             data: {
-                groups: test_groups
+                groups: test_groups, tasks: [], invitations: []
             },
         })
 
@@ -181,18 +184,29 @@ describe('Group', () => {
     });
 
     test('leaves a group', async () => {
-        axiosInstance.get.mockResolvedValueOnce({
-            status: 200,
-            data: {
-                groups: test_groups
-            },
-        })
-        axiosInstance.get.mockResolvedValueOnce({
-            status: 200,
-            data: {
-                groups: test_groups_only_alpha
-            },
-        })
+        let groupCallCount = 0;
+
+        axiosInstance.get.mockImplementation((url) => {
+            if (url === '/api/groups/') {
+                groupCallCount++;
+                if (groupCallCount === 1) {
+                    return Promise.resolve({
+                        status: 200,
+                        data: { groups: test_groups }
+                    });
+                } else {
+                    return Promise.resolve({
+                        status: 200,
+                        data: { groups: test_groups_only_alpha }
+                    });
+                }
+            }
+
+            return Promise.resolve({
+                status: 200,
+                data: { tasks: [], invitations: [] }
+            });
+        });
 
         axiosInstance.post.mockResolvedValue({
             status: 200,
@@ -242,7 +256,7 @@ describe('Group', () => {
             } else {
                 return Promise.resolve({
                     status: 200,
-                    data: { group: test_members_group }
+                    data: { group: test_members_group, tasks: [], invitations: [] }
                 });
             }
         });
@@ -290,14 +304,30 @@ describe('Group', () => {
     });
 
     test('creates a new group', async () => {
-        axiosInstance.get.mockResolvedValueOnce({
-            status: 200,
-            data: { groups: test_groups_only_alpha }
-        })
-        axiosInstance.get.mockResolvedValueOnce({
-            status: 200,
-            data: { groups: test_groups }
-        })
+        let groupCallCount = 0;
+
+        axiosInstance.get.mockImplementation((url) => {
+            if (url === '/api/groups/') {
+                groupCallCount++;
+                if (groupCallCount === 1) {
+                    return Promise.resolve({
+                        status: 200,
+                        data: { groups: test_groups_only_alpha }
+                    });
+                } else {
+                    return Promise.resolve({
+                        status: 200,
+                        data: { groups: test_groups }
+                    });
+                }
+            }
+
+            return Promise.resolve({
+                status: 200,
+                data: { tasks: [], invitations: [] }
+            });
+        });
+
         axiosInstance.post.mockResolvedValue({
             status: 201,
             data: { group: test_groups_only_alpha }
@@ -360,14 +390,30 @@ describe('Group', () => {
     });
 
     test('edits a group', async () => {
-        axiosInstance.get.mockResolvedValueOnce({
-            status: 200,
-            data: { groups: test_groups }
-        })
-        axiosInstance.get.mockResolvedValueOnce({
-            status: 200,
-            data: { groups: test_group_edit }
-        })
+        let groupCallCount = 0;
+
+        axiosInstance.get.mockImplementation((url) => {
+            if (url === '/api/groups/') {
+                groupCallCount++;
+                if (groupCallCount === 1) {
+                    return Promise.resolve({
+                        status: 200,
+                        data: { groups: test_groups }
+                    });
+                } else {
+                    return Promise.resolve({
+                        status: 200,
+                        data: { groups: test_group_edit }
+                    });
+                }
+            }
+
+            return Promise.resolve({
+                status: 200,
+                data: { tasks: [], invitations: [] }
+            });
+        });
+
         axiosInstance.put.mockResolvedValue({
             status: 200,
             data: { group: test_groups_only_alpha }

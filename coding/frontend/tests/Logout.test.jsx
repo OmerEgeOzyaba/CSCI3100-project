@@ -10,10 +10,12 @@ vi.mock('axios');
 import { axiosInstance } from 'axios';
 
 describe('Logout', () => {
+    const token = "eyJhbGciOiJIUzI1NiJ9.e30.2-w724PWbrMu69daqBElQGCDvL8hJdAKn3ChxHrjxxA"
+
     test('clicks on logout', async () => {
         axiosInstance.get.mockResolvedValue({
             status: 200,
-            data: { groups: [] },
+            data: { groups: [], tasks: [], invitations: [] },
         })
 
         axiosInstance.post.mockResolvedValue({
@@ -22,6 +24,8 @@ describe('Logout', () => {
         })
 
         const user = userEvent.setup();
+
+        localStorage.setItem("authToken", token);
 
         render(
             <MemoryRouter initialEntries={['/dashboard']}>
@@ -34,7 +38,7 @@ describe('Logout', () => {
 
         await user.click(screen.getByRole('button', { name: "Logout" }));
 
-        expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/logout');
+        expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/logout', {}, {headers: { Authorization: `Bearer ${token}` }});
 
         await waitFor(() => {
             expect(screen.getByLabelText("Email")).toBeInTheDocument();

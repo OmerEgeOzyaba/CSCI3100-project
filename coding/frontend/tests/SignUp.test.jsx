@@ -43,15 +43,15 @@ describe('SignUp', () => {
         );
 
         await user.type(screen.getByLabelText("Email"), 'user@example.com');
-        await user.type(screen.getByLabelText("Password"), 'pass1234');
+        await user.type(screen.getByLabelText("Password"), 'Pass1234!');
         await user.type(screen.getByLabelText("License Key"), '12341234');
         await user.click(screen.getByRole('button', { name: "Create Account" }));
 
         await waitFor(() => {
 
-            expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/signup', {
+            expect(axiosInstance.post).toHaveBeenCalledWith('/api/users/signup', {
                 email: 'user@example.com',
-                password: 'pass1234',
+                password: 'Pass1234!',
                 licenseKey: '12341234'
             });
 
@@ -78,15 +78,15 @@ describe('SignUp', () => {
         );
 
         await user.type(screen.getByLabelText("Email"), 'user@example.com');
-        await user.type(screen.getByLabelText("Password"), 'pass1234');
+        await user.type(screen.getByLabelText("Password"), 'Pass1234!');
         await user.type(screen.getByLabelText("License Key"), '12341234');
         await user.click(screen.getByRole('button', { name: "Create Account" }));
 
         await waitFor(() => {
 
-            expect(axiosInstance.post).toHaveBeenCalledWith('/api/auth/signup', {
+            expect(axiosInstance.post).toHaveBeenCalledWith('/api/users/signup', {
                 email: 'user@example.com',
-                password: 'pass1234',
+                password: 'Pass1234!',
                 licenseKey: '12341234'
             });
 
@@ -108,7 +108,7 @@ describe('SignUp', () => {
         );
 
         await user.type(screen.getByLabelText("Email"), 'user@example.com');
-        await user.type(screen.getByLabelText("Password"), 'pass1234');
+        await user.type(screen.getByLabelText("Password"), 'Pass1234!');
         await user.click(screen.getByRole('button', { name: "Create Account" }));
 
         await waitFor(() => {
