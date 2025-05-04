@@ -67,10 +67,10 @@ export default function SignUp() {
         } catch (err) {
             console.error(err);
             if (err.response) {
-                if (err.response.status === 401) {
-                    setLicenseError(err.response.data.msg || 'Invalid software license.');
+                if (err.response.status === 401 || err.response.status === 400) {
+                    setLicenseError(err.response.data.error || 'Invalid software license.');
                 } else {
-                    setNetworkError(err.response.data.msg || 'Signup failed. Please try again.');
+                    setNetworkError(err.response.data.error || 'Signup failed. Please try again.');
                 }
             } else {
                 setNetworkError('Network error. Please try again.');
