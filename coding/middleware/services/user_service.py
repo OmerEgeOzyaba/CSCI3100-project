@@ -3,7 +3,7 @@ from middleware_data_classes import User, SoftwareLicense
 from database import Database
 import re
 from typing import Tuple, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class UserService:
     def __init__(self):
@@ -33,7 +33,7 @@ class UserService:
 
             new_user = User(email = email,
                             password = generate_password_hash(password),
-                            created_at = datetime.utcnow())
+                            created_at = datetime.now(timezone.utc))
 
             session.add(new_user)
             session.commit()

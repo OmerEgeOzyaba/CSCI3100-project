@@ -4,15 +4,16 @@ from database import Database
 
 ############# AUTH RELATED #############
 
-def mock_user(mocker, email='test@example.com', password='password'):
-    """Central mock user generator"""
-    mock_user = mocker.Mock()
-    mock_user.email = email
-    mock_user.get_password.return_value = generate_password_hash(password)
-    return mock_user
+from unittest.mock import Mock
+
+
+def mock_user():
+    user = Mock()
+    user.email = "test@example.com"
+    user.password=generate_password_hash("password")
+    return user
 
 def auth_header(token):
-    """Standard auth header formatter"""
     return {'Authorization': f'Bearer {token}'}
 
 def assert_token_revoked(redis_client, jti):

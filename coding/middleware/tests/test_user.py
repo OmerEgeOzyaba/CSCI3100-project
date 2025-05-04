@@ -3,6 +3,8 @@ from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 
+from ..services.user_service import UserService
+
 class TestUserService:
     def test_create_user_success(self, user_service, mock_db_session):
         user_service.db.get_session.return_value.query.return_value.filter.return_value.first.return_value = None

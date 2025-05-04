@@ -1,219 +1,86 @@
-from flask import Blueprint, jsonify, request, current_app, g
+from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from middleware_data_classes import Membership, Role, InvitationStatus, User, Group
-from database import Database
-from datetime import datetime
-from sqlalchemy import and_
+from services.membership_service import MembershipService
 
 invitation_bp = Blueprint('invitations', __name__)
+membership_service = MembershipService()
 
 @invitation_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_invitations():
-    """Get all invitations for the current user"""
     try:
-        current_user_email = get_jwt_identity()
-        db = Database().get_session()
-        
-        # Get all pending invitations for the user
-        invitations = db.query(Membership).filter(
-            and_(
-                Membership.user_id == current_user_email,
-                Membership.status == InvitationStatus.SENT
-            )
-        ).all()
-        
-        invitations_data = []
-        for invitation in invitations:
-            # Get the group and inviter details
-            group = db.query(Group).filter(Group.id == invitation.group_id).first()
-            
-            invitations_data.append({
-                "id": f"{invitation.user_id}_{invitation.group_id}",  # Composite key
-                "group_id": invitation.group_id,
-                "group_name": group.name if group else "Unknown Group",
-                "inviter_email": invitation.inviter_email,
-                "invite_date": invitation.invite_date.isoformat() if invitation.invite_date else None,
-                "status": invitation.status.value
-            })
-        
+        user_email = get_jwt_identity()
+        invitations = membership_service.get_invitations(user_email)
+        invitations_data = [{
+            "id": f"{inv.user_id}_{inv.group_id}",
+            "group_id": inv.group_id,
+            "group_name": inv.group.name if inv.group else "Unknown",
+            "inviter_email": inv.inviter_email,
+            "invite_date": inv.invite_date.isoformat() if inv.invite_date else None,
+            "status": inv.status.value
+        } for inv in invitations]
         return jsonify({"invitations": invitations_data})
     except Exception as e:
         current_app.logger.error(f"Error fetching invitations: {str(e)}")
         return jsonify({"error": "Failed to fetch invitations"}), 500
-    finally:
-        db.close()
 
 @invitation_bp.route('/send', methods=['POST'])
 @jwt_required()
 def send_invitation():
-    """Send an invitation to a user to join a group"""
-    if not request.json:
-        return jsonify({"error": "Invalid request data"}), 400
-    
-    email = request.json.get('email')
-    group_id = request.json.get('group_id')
-    
-    if not email or not group_id:
-        return jsonify({"error": "Email and group_id are required"}), 400
-    
     try:
         inviter_email = get_jwt_identity()
-        db = Database().get_session()
-        
-        # Verify that the inviter is a member of the group with admin or contributor role
-        inviter_membership = db.query(Membership).filter(
-            and_(
-                Membership.user_id == inviter_email,
-                Membership.group_id == group_id,
-                Membership.status == InvitationStatus.ACCEPTED
-            )
-        ).first()
-        
-        if not inviter_membership:
-            return jsonify({"error": "You are not a member of this group"}), 403
-        
-        if inviter_membership.role not in [Role.ADMIN, Role.CONTRIBUTOR]:
-            return jsonify({"error": "You don't have permission to invite users to this group"}), 403
-        
-        # Check if the user exists
-        user = db.query(User).filter(User.email == email).first()
-        if not user:
-            return jsonify({"error": "User not found"}), 404
-        
-        # Check if the user is already a member of the group
-        existing_membership = db.query(Membership).filter(
-            and_(
-                Membership.user_id == email,
-                Membership.group_id == group_id
-            )
-        ).first()
-        
-        if existing_membership:
-            if existing_membership.status == InvitationStatus.ACCEPTED:
-                return jsonify({"error": "User is already a member of this group"}), 400
-            elif existing_membership.status == InvitationStatus.SENT:
-                return jsonify({"error": "User already has a pending invitation to this group"}), 400
-        
-        # Create a new membership with SENT status
-        membership = Membership(
-            user_id=email,
-            group_id=group_id,
-            role=Role.READER,  # Default role for new invites
-            inviter_email=inviter_email,
-            invite_date=datetime.utcnow(),
-            status=InvitationStatus.SENT
+        invite = membership_service.send_invitation(
+            inviter_email,
+            request.json['email'],
+            request.json['group_id']
         )
-        
-        db.add(membership)
-        db.commit()
-        
         return jsonify({
             "message": "Invitation sent successfully",
-            "invitation": {
-                "id": f"{email}_{group_id}",  # Composite key
-                "email": email,
-                "group_id": group_id,
-                "inviter_email": inviter_email,
-                "invite_date": membership.invite_date.isoformat(),
-                "status": membership.status.value
-            }
+            "invitation": invite  # Changed from invite_data to invite
         }), 201
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
-        db.rollback()
         current_app.logger.error(f"Error sending invitation: {str(e)}")
-        return jsonify({"error": f"Failed to send invitation: {str(e)}"}), 500
-    finally:
-        db.close()
+        return jsonify({"error": "Failed to send invitation"}), 500
 
 @invitation_bp.route('/accept', methods=['POST'])
 @jwt_required()
 def accept_invitation():
-    """Accept an invitation to join a group"""
-    if not request.json:
-        return jsonify({"error": "Invalid request data"}), 400
-    
-    group_id = request.json.get('group_id')
-    
-    if not group_id:
-        return jsonify({"error": "Group ID is required"}), 400
-    
+    if not request.json or 'group_id' not in request.json:
+        return jsonify({"error": "Missing group_id"}), 400
     try:
-        current_user_email = get_jwt_identity()
-        db = Database().get_session()
-        
-        # Find the invitation
-        invitation = db.query(Membership).filter(
-            and_(
-                Membership.user_id == current_user_email,
-                Membership.group_id == group_id,
-                Membership.status == InvitationStatus.SENT
-            )
-        ).first()
-        
-        if not invitation:
-            return jsonify({"error": "Invitation not found"}), 404
-        
-        # Update the invitation status to ACCEPTED
-        invitation.status = InvitationStatus.ACCEPTED
-        invitation.join_date = datetime.utcnow()
-        db.commit()
-        
+        user_email = get_jwt_identity()
+        membership = membership_service.accept_invitation(user_email, request.json['group_id'])
         return jsonify({
             "message": "Invitation accepted successfully",
             "membership": {
-                "user_id": invitation.user_id,
-                "group_id": invitation.group_id,
-                "role": invitation.role.value,
-                "status": invitation.status.value,
-                "join_date": invitation.join_date.isoformat()
+                "user_id": membership.user_id,
+                "group_id": membership.group_id,
+                "role": membership.role.value,
+                "status": membership.status.value,
+                "join_date": membership.join_date.isoformat()
             }
         })
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
-        db.rollback()
         current_app.logger.error(f"Error accepting invitation: {str(e)}")
         return jsonify({"error": "Failed to accept invitation"}), 500
-    finally:
-        db.close()
 
 @invitation_bp.route('/decline', methods=['POST'])
 @jwt_required()
 def decline_invitation():
-    """Decline an invitation to join a group"""
-    if not request.json:
-        return jsonify({"error": "Invalid request data"}), 400
-    
-    group_id = request.json.get('group_id')
-    
-    if not group_id:
-        return jsonify({"error": "Group ID is required"}), 400
-    
+    if not request.json or 'group_id' not in request.json:
+        return jsonify({"error": "Missing group_id"}), 400
     try:
-        current_user_email = get_jwt_identity()
-        db = Database().get_session()
-        
-        # Find the invitation
-        invitation = db.query(Membership).filter(
-            and_(
-                Membership.user_id == current_user_email,
-                Membership.group_id == group_id,
-                Membership.status == InvitationStatus.SENT
-            )
-        ).first()
-        
-        if not invitation:
-            return jsonify({"error": "Invitation not found"}), 404
-        
-        # Delete the invitation
-        db.delete(invitation)
-        db.commit()
-        
-        return jsonify({
-            "message": "Invitation declined successfully"
-        })
+        user_email = get_jwt_identity()
+        membership_service.decline_invitation(user_email, request.json['group_id'])
+        return jsonify({"message": "Invitation declined successfully"})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
-        db.rollback()
         current_app.logger.error(f"Error declining invitation: {str(e)}")
         return jsonify({"error": "Failed to decline invitation"}), 500
-    finally:
-        db.close()

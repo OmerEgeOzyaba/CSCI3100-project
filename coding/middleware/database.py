@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker, Session
+from dotenv import load_dotenv
+load_dotenv()  # Add this at the top of your database.py file
 import os
 
 class Database:
