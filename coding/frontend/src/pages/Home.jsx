@@ -43,12 +43,15 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { getGroups, leaveGroup, logout, getTasks, getInvitations, createTask, updateTask, deleteTask, createGroup, acceptInvitation, declineInvitation } from '../services/api'
 
 export default function Home() {
   const navigate = useNavigate()
   const [userId, setUserId] = useState(null);
+
+  const location = useLocation();
+  const [userEmail] = useState(location.state?.user || null);
 
   // Check token validity on mount
   useEffect(() => {
@@ -458,7 +461,7 @@ export default function Home() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            CULater
+            {userEmail ? `CULater - ${userEmail}` : "CULater"}
           </Typography>
           <Button color="inherit" startIcon={<PersonIcon />} onClick={() => handleLogout()}>
             Logout

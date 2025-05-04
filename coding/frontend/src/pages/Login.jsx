@@ -41,7 +41,7 @@ export default function Login() {
       }
       
       // Redirect to dashboard page after successful login
-      navigate('/dashboard')
+      navigate('/dashboard', { state: { user: data.user.email } });
     } catch (err) {
       console.error(err)
       if (err.response) {

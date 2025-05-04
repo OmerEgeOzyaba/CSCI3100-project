@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createGroup, updateGroup } from '../services/api'
 
@@ -13,6 +13,7 @@ const GroupFormPage = () => {
   const [name, setName] = useState(existingGroup?.name || '');
   const [description, setDescription] = useState(existingGroup?.description || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('')
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -26,7 +27,8 @@ const GroupFormPage = () => {
       }
 
       navigate('/dashboard');
-    } catch (error) {
+    } catch (err) {
+      setError(`Action failed: ${err.response.data.error || 'Unknown error'}`)
       setIsSubmitting(false);
     }
   };
@@ -41,6 +43,9 @@ const GroupFormPage = () => {
         <Typography variant="h4" gutterBottom>
           {existingGroup ? 'Edit Group' : 'Create Group'}
         </Typography>
+
+        {error && <Alert severity="error">{error}</Alert>}
+
         <Box
           component="form"
           noValidate
@@ -54,6 +59,7 @@ const GroupFormPage = () => {
             label="Group Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            margin="normal"
           />
           <TextField
             label="Description"
