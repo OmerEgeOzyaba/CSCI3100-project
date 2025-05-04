@@ -110,13 +110,13 @@ def handle_server_error(error):
 
 #=========================================================================
 # redis error handling
-#@jwt.revoked_token_loader
-#def handle_revoked_token(jwt_header, jwt_payload):
-    #return jsonify({"error": "Token has been revoked"}), 401
+@jwt.revoked_token_loader
+def handle_revoked_token(jwt_header, jwt_payload):
+    return jsonify({"error": "Token has been revoked"}), 401
 
-#@jwt.invalid_token_loader
-#def handle_invalid_token(error):
-    #return jsonify({"error": "Invalid token"}), 401
+@jwt.invalid_token_loader
+def handle_invalid_token(error):
+    return jsonify({"error": "Invalid token"}), 401
 
 #========================================================================= 
 
