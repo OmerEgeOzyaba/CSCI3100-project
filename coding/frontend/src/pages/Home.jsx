@@ -545,7 +545,7 @@ export default function Home() {
                           <ListItem>
                             <ListItemText
                               primary={task.title}
-                              secondary={`Group: ${groupName} • Due: ${formatDate(task.due_date)} • Status: ${task.status}`}
+                              secondary={`Group: ${groupName} • Due: ${formatDate(task.due_date)}`}
                             />
                             <ListItemSecondaryAction>
                               <Tooltip title="Edit Task">
@@ -872,6 +872,7 @@ export default function Home() {
                   value={taskToEdit.group_id}
                   onChange={handleEditTaskInputChange}
                   label="Group"
+                  disabled={true}
                 >
                   {groups.map((group) => (
                     <MenuItem key={group.id} value={group.id}>
