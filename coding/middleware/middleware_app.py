@@ -126,32 +126,6 @@ def index():
 
 #=========================================================================
 
-# User endpoints
-@app.route('/api/users', methods=['GET'])
-def get_users():
-    """Retrieve a list of users."""
-    dummy_users = [
-        {"id": 1, "name": "John Doe", "email": "john@example.com"},
-        {"id": 2, "name": "Jane Smith", "email": "jane@example.com"}
-    ]
-    return jsonify(dummy_users), 200
-
-@app.route('/api/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    """Retrieve a specific user by ID."""
-    dummy_users = [
-        {"id": 1, "name": "John Doe", "email": "john@example.com"},
-        {"id": 2, "name": "Jane Smith", "email": "jane@example.com"}
-    ]
-    
-    # Find the user with the matching ID
-    user = next((usr for usr in dummy_users if usr["id"] == user_id), None)
-    
-    if user is None:
-        return jsonify({"error": "User not found"}), 404
-    
-    return jsonify(user), 200
-
 # Invitation endpoints
 @app.route('/api/invitations', methods=['GET'])
 def get_invitations():
