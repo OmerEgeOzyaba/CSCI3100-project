@@ -118,7 +118,7 @@ const MembersPage = () => {
   return (
     <Container maxWidth="sm">
       <Box mt={5}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Box display="flex" flexDirection="column" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h4" gutterBottom>
             {groupName} Members:
           </Typography>

@@ -39,9 +39,11 @@ export default function Login() {
       } else {
         console.error("No access_token in login response:", data)
       }
+
+      localStorage.setItem("user", JSON.stringify(data.user.email));
       
       // Redirect to dashboard page after successful login
-      navigate('/dashboard', { state: { user: data.user.email } });
+      navigate('/dashboard');
     } catch (err) {
       console.error(err)
       if (err.response) {

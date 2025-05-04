@@ -43,15 +43,14 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon
 } from '@mui/icons-material'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getGroups, leaveGroup, logout, getTasks, getInvitations, createTask, updateTask, deleteTask, createGroup, acceptInvitation, declineInvitation } from '../services/api'
 
 export default function Home() {
   const navigate = useNavigate()
   const [userId, setUserId] = useState(null);
 
-  const location = useLocation();
-  const [userEmail] = useState(location.state?.user || null);
+  const userEmail = JSON.parse(localStorage.getItem("user"));
 
   // Check token validity on mount
   useEffect(() => {
