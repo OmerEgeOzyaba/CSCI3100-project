@@ -151,11 +151,13 @@ export default function Home() {
     try {
       if (accept) {
         await acceptInvitation(invitation.group_id);
-        // After accepting, refresh both invitations and groups
+        // After accepting, refresh invitations, groups, and tasks
         setInvitesLoading(true);
         setGroupLoading(true);
-        fetchInvitations();
-        fetchGroup();
+        setTasksLoading(true);
+        await fetchInvitations();
+        await fetchGroup();
+        await fetchTasks();
       } else {
         await declineInvitation(invitation.group_id);
         // After declining, just refresh invitations

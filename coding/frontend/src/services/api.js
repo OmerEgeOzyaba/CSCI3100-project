@@ -200,10 +200,10 @@ export const getInvitations = async () => {
   }
 }
 
-export const sendInvitation = async (email, group_id) => {
+export const sendInvitation = async (email, group_id, role = 'reader') => {
   console.log("API: sendInvitation called")
   try {
-    const response = await API.post('/api/invites/send', { email, group_id })
+    const response = await API.post('/api/invites/send', { email, group_id, role })
     console.log("API: sendInvitation response", response.data)
     return response
   } catch (error) {

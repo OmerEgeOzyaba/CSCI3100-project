@@ -53,6 +53,7 @@ def send_invitation():
     
     email = request.json.get('email')
     group_id = request.json.get('group_id')
+    role = request.json.get('role', 'reader')  # Default to reader if not specified
     
     if not email or not group_id:
         return jsonify({"error": "Email and group_id are required"}), 400
@@ -95,11 +96,11 @@ def send_invitation():
             elif existing_membership.status == InvitationStatus.SENT:
                 return jsonify({"error": "User already has a pending invitation to this group"}), 400
         
-        # Create a new membership with SENT status
+        # Create a new membership with SENT status and specified role
         membership = Membership(
             user_id=email,
             group_id=group_id,
-            role=Role.READER,  # Default role for new invites
+            role=Role(role),  # Convert string to Role enum
             inviter_email=inviter_email,
             invite_date=datetime.utcnow(),
             status=InvitationStatus.SENT
@@ -114,6 +115,7 @@ def send_invitation():
                 "id": f"{email}_{group_id}",  # Composite key
                 "email": email,
                 "group_id": group_id,
+                "role": role,
                 "inviter_email": inviter_email,
                 "invite_date": membership.invite_date.isoformat(),
                 "status": membership.status.value
