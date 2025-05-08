@@ -6,10 +6,10 @@ Classes/enumerations and their purposes:
 
 User:
 - Represents a user in the system, identified by their unique email
-- Holds user credentials (email, password) and information about user creation
+- Holds user credentials (email, hashed password) and information about user creation
 
 UserService:
-- Manages operations related to users, such as creating users, updating their emails, and updating/resetting their passwords, enforcing password policy for security
+- Manages operations related to users, such as creating users, license key validation during registration, and enforcing password policy for security
 - Interacts with the database
 
 Task:
@@ -18,14 +18,14 @@ Task:
 
 TaskService:
 - Manages tasks in the system
-- Interacts with the database to create tasks, update them, mark them as completed/deleted, retrieve them by the group they're assigned to
+- Interacts with the database to create tasks, update them according to membership hierarchy, mark them as completed/deleted, retrieve them by the group they're assigned to
 
 Group:
 - Represents a group in the system
 - Each group has a name, description, and creation date
 
 GroupService:
-- Manages groups in the system, creating them, updating, and deleting them
+- Manages groups in the system, creating them, updating them, and leaving/deleting them. Also features retreiving all the groups a user is in, or retreiving the specified group of a user
 - Interacts with the database
 
 Membership:
@@ -33,22 +33,17 @@ Membership:
 - Tracks the user's role, invitation status, who invited them, when they were invited and when they joined
 
 MembershipService:
-- Manages memberships in the system, including sending invitations, accepting/rejecting invitations, retreiving memberships by group, addition/removal of users to/from groups
+- Manages memberships in the system, including sending invitations, accepting/rejecting invitations
 - Interacts with the database
 
 AuthService:
 - Manages user authentication
-- Handles login, logout, token generation, validation, password hashing
+- Handles login, logout, token generation, validation
 - Interacts with the database
 
 SoftwareLicense:
 - Represents a software license in the system
 - Contains unique license key, its creation date, and its usage status
-
-SoftwareLicenseService:
-- Manages software licenses in the system
-- Handles saving new licenses to the database, updating usage status, and retreiving licenses
-- Interacts with the database
 
 Role (enumeration):
 - Defines possible roles a user can have in a group
@@ -67,11 +62,11 @@ Design considerations:
 - Password policy enforcement in UserService provides necessary security to prevent weak passwords.
 - The use of enums for user roles and invitation statuses allow for better maintainability, as any new role or status additions can be easily handled by modifying the enums. This also prevents hardcoding in the codebase.
 - Service classes are modular which means new features can be added to the system wthout large-scale changes.
-- Each class encapsulates a specigic set of responsibilities which make the system more maintainable.
+- Each class encapsulates a specific set of responsibilities which make the system more maintainable.
 
 Possible improvements:
 ----------------------
 
-- For performance reasons, consider implementing caching strategies for frequently queried data.
+- For performance reasons, implementing caching strategies for frequently queried data would make the system more robust.
 - Querying tasks for a group can become performance-heavy as the application grows. Efficient indexing and caching will improve scalability.
 
