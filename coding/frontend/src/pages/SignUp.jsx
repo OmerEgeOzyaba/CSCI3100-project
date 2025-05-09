@@ -67,7 +67,7 @@ export default function SignUp() {
         } catch (err) {
             console.error(err);
             if (err.response) {
-                if (err.response.status === 401 || err.response.status === 400) {
+                if (err.response.status === 401) {
                     setLicenseError(err.response.data.error || 'Invalid software license.');
                 } else {
                     setNetworkError(err.response.data.error || 'Signup failed. Please try again.');
