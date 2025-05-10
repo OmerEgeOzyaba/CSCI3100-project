@@ -52,7 +52,17 @@ class TaskService:
                     Membership.status == InvitationStatus.ACCEPTED
                 )
             ).first()
-            return task if membership else None
+            if not membership:
+                return None
+            task_data = {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "due_date": task.due_date.isoformat() if task.due_date else None,
+                "status": "completed" if task.status else "pending",
+                "group_id": task.group_id
+            }
+            return task_data
         finally:
             session.close()
 
@@ -112,7 +122,16 @@ class TaskService:
             if status is not None:
                 task.status = status
             session.commit()
-            return task
+            # Serialize task data into a dictionary before closing the session
+            task_data = {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "due_date": task.due_date.isoformat() if task.due_date else None,
+                "status": "completed" if task.status else "pending",
+                "group_id": task.group_id
+            }
+            return task_data
         except Exception as e:
             session.rollback()
             raise

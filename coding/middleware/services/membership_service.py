@@ -2,6 +2,7 @@ from database import Database
 from middleware_data_classes import Membership, Role, InvitationStatus
 from sqlalchemy import and_
 from datetime import datetime, timezone  # Add this import
+from middleware_data_classes import User  # Import User model
 
 class MembershipService:
     def __init__(self):
@@ -23,6 +24,11 @@ class MembershipService:
     def send_invitation(self, inviter_email, member_email, group_id, role=Role.READER):
         session = self.db.get_session()
         try:
+            # Check if the invited user exists
+            user = session.query(User).filter(User.email == member_email).first()
+            if not user:
+                raise ValueError("User does not exist")
+
             inviter_membership = session.query(Membership).filter(
                 and_(
                     Membership.user_id == inviter_email,
@@ -51,8 +57,6 @@ class MembershipService:
             )
             session.add(new_invite)
             session.commit()
-            
-            # Return dictionary with serialized data
             return {
                 "id": f"{new_invite.user_id}_{new_invite.group_id}",
                 "email": new_invite.user_id,

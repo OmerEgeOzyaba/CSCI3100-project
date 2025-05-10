@@ -10,10 +10,11 @@ def group_to_dict(group, include_members=False):
         "id": group.id,
         "name": group.name,
         "description": group.description,
-        "created_at": group.created_at.isoformat() if group.created_at else None
+        "created_at": group.created_at.isoformat() if hasattr(group.created_at, 'isoformat') else group.created_at
     }
     if include_members and group.memberships:
         result["members"] = [{"email": m.user_id, "role": m.role.value, "status": m.status.value} for m in group.memberships]
+    return result
     return result
 
 @group_bp.route('/', methods=['GET'])
@@ -64,13 +65,13 @@ def update_group(group_id):
         return jsonify({"error": "Invalid request data"}), 400
     try:
         user_email = get_jwt_identity()
-        group = group_service.update_group(
+        group_data = group_service.update_group(
             user_email,
             group_id,
             name=request.json.get('name'),
             description=request.json.get('description')
         )
-        return jsonify({"group": group_to_dict(group)})
+        return jsonify({"group": group_data})
     except PermissionError as e:
         return jsonify({"error": str(e)}), 403
     except ValueError as e:

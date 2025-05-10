@@ -82,7 +82,7 @@ def update_task(task_id):
         user_email = get_jwt_identity()
         due_date = datetime.fromisoformat(request.json['due_date'].replace('Z', '+00:00')) if request.json.get('due_date') else None
         status = request.json['status'].lower() == 'completed' if 'status' in request.json else None
-        task = task_service.update_task(
+        task_data = task_service.update_task(
             user_email,
             task_id,
             title=request.json.get('title'),
@@ -90,7 +90,7 @@ def update_task(task_id):
             due_date=due_date,
             status=status
         )
-        return jsonify({"task": task_to_dict(task)})
+        return jsonify({"task": task_data})
     except PermissionError as e:
         return jsonify({"error": str(e)}), 403
     except ValueError as e:

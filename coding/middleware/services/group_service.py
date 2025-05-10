@@ -59,6 +59,8 @@ class GroupService:
             )
             session.add(membership)
             session.commit()
+            # Force loading of memberships before session closes
+            _ = new_group.memberships
             return new_group
         except Exception as e:
             session.rollback()
@@ -69,25 +71,39 @@ class GroupService:
     def update_group(self, user_email, group_id, name=None, description=None):
         session = self.db.get_session()
         try:
+            # Find the group
             group = session.query(Group).filter(Group.id == group_id).first()
             if not group:
                 raise ValueError("Group not found")
+
+            # Verify admin permissions
             membership = session.query(Membership).filter(
-                and_(
-                    Membership.user_id == user_email,
-                    Membership.group_id == group_id,
-                    Membership.status == InvitationStatus.ACCEPTED,
-                    Membership.role == Role.ADMIN
-                )
+                Membership.user_id == user_email,
+                Membership.group_id == group_id,
+                Membership.status == 'ACCEPTED',
+                Membership.role == 'ADMIN'
             ).first()
             if not membership:
                 raise PermissionError("Only admins can update group details")
+
+            # Update group attributes
             if name:
                 group.name = name
             if description:
                 group.description = description
+
+            # Commit the changes
             session.commit()
-            return group
+
+            # Serialize the group data into a dictionary
+            group_data = {
+                "id": group.id,
+                "name": group.name,
+                "description": group.description,
+                "created_at": group.created_at.isoformat() if hasattr(group.created_at, 'isoformat') else str(group.created_at)
+            }
+            return group_data
+
         except Exception as e:
             session.rollback()
             raise
