@@ -99,7 +99,7 @@ Once you are logged in, if you want to logout, click on the "LOGOUT" box on the 
 To use CULater, you will have to create or be a member of groups. Without groups, you cannot create tasks. If you would like to create a new group, click on "+ CREATE A NEW GROUP" on your dashboard under the "Groups" tab. Once you click this box, you will be prompted with a group creation page. Here, there are two fields to fill out: the group name and a description. To create a group, you must fill out the "Group Name" field. The "Description" field is optional. Once you filled out the fields, click "OK". Click "CANCEL" if you would like to cancel the group creation. Once you have successfully created a new group, it will be displayed on your dashboard. See Figure 5.1-5.3.\\
 \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.8\textwidth]{dahboard_with_tasks_and_groups_and_invites_create_group.png}
+        \includegraphics[width=0.8\textwidth]{dahboard_view_new_group.png}
 	\caption{Create a new group}
 	\label{fig:my_label}
 \end{figure}
@@ -111,7 +111,7 @@ To use CULater, you will have to create or be a member of groups. Without groups
 \end{figure}
 \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.8\textwidth]{added_new_group_dashboard.png}
+        \includegraphics[width=0.8\textwidth]{working_group_dashboard_after_creation_edited.png}
 	\caption{Dashboard with the new group}
 	\label{fig:my_label}
 \end{figure}
@@ -131,7 +131,7 @@ Each role comens with its own scope of actions. Readers can only view the detail
 
 For task creation, you need to have groups. Each task you create needs to belong to a group. To create a task, click on "+ ADD NEW TASK" on your dashboard. If you currently do not have any groups, you will be prompted with an error. Click "OK" once you get the error, and you will be prompted with a group creation window. Enter the name of the group you would like to create, and click "OK". Once you click "OK", a new group will be created, and you can proceed with the task creation process. If you click "CANCEL" a new group won't be created, and you won't be able to add a new task.\\
 
-Once there are groups where you are either an admin or a contributor, you can create tasks. When you click "+ ADD NEW TASK" on your dashboard, you are prompted with the required fields to create the task. Fields with "*" mean they are mandatory. The only mandatory field is the title of the task. Description and due date fields are optional. Then, you must choose one group to assign the task to. Once you submit, the task is created, and it will appear on your dashboard.\\
+Once there are groups where you are either an admin or a contributor, you can create tasks. When you click "+ ADD NEW TASK" on your dashboard, you are prompted with the required fields to create the task. Fields with "*" mean they are mandatory. The only mandatory fields are the title of the task and the due date. Description field is optional. Then, you must choose one group to assign the task to. Once you submit, the task is created, and it will appear on your dashboard.\\
 
 \textbf{Note:} To be able to create tasks in a group, you have to be an admin or a contributor in that group. Refer to Chapter 6: Group Roles.\\
 \begin{figure}[htbp]
@@ -153,43 +153,70 @@ Once there are groups where you are either an admin or a contributor, you can cr
 	\label{fig:my_label}
 \end{figure}
 
-% TODO: UNCOMMENT ONCE BUGS ARE FIXED, ADD IMAGE OF TASK CREATION PAGE
-%\begin{figure}[htbp]
-        %\centering
-        %\includegraphics[width=0.8\textwidth]{.png}
-	%\caption{Task creation page}
-	%\label{fig:my_label}
-%\end{figure}
-
-\chapter{Task Filtering}
-
-At the top of the "Tasks" tab on the dashboard, there is a search bar. You can type the group name of the tasks you would like to view, and only the tasks belonging to the specified group will be shown.
 \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.8\textwidth]{task_filtering.png}
-	\caption{Task filtering}
+        \includegraphics[width=0.8\textwidth]{task_creation_page.png}
+	\caption{Task creation page}
+	\label{fig:my_label}
+\end{figure}
+% TODO: SS of DASHBOARD WITH ONE NEW TASK
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{dashboard_new_task.png}
+	\caption{Dashboard with new tasks}
 	\label{fig:my_label}
 \end{figure}
 
+\chapter{Task Searching and Filtering}
+
+You can both search tasks by their title and filter tasks by the groups they belong to. At the top of the "Tasks" tab on the dashboard, there is a search bar. This search bar is for searching tasks by their title. Under it is the task filter. You can chose the group name of the tasks you would like to view, and only the tasks belonging to the specified group will be shown.
+%TODO: SHOW BOTH SEARCH BAR AND FILTERING
+% SS OF SEARCH BAR AND FILTER POINTED (DASHBOARD WITH MULTIPLE TASKS)
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{task_filtering.png}
+	\caption{Task searching/filtering}
+	\label{fig:my_label}
+\end{figure}
+% SS OF ROLLDOWN MENU FOR FILTERING
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{filtering.png}
+	\caption{Task filtering}
+	\label{fig:my_label}
+\end{figure}
+% FILTERED VIEW
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{filtered.png}
+	\caption{Filtered tasks}
+	\label{fig:my_label}
+\end{figure}
+
+
 \chapter{Group Invitations}
 
-The admins and the contributors of a group can invite other users to the group. To send an invite, click on the "MEMBERS" box next to the group name on the dashboard. Then, click on "Invite". You will be asked to provide the email of the user you would like to invite and the type of role you want to give to the invitee. You can only grant less or the same permissions as yourself. After submitting, the invite is sent. The invitee can view the invite on their dashboard.\\
+The admins and the contributors of a group can invite other users to the group. To send an invite, click on the "MEMBERS" box next to the group name on the dashboard. Then, click on "Invite". You will be asked to provide the email of the user you would like to invite. After submitting, the invite is sent. The invitee can view the invite on their dashboard.\\
 
 To accept/decline an invite, simply either click on the tick sign or the cross sign. Once you accept an invitation, you will see your new group among your groups on your dashboard, and you will be able to view the tasks of that group.\\
 \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.8\textwidth]{invitation.png}
+        \includegraphics[width=0.8\textwidth]{invite_members.png}
+	\caption{Inviting new members}
+	\label{fig:my_label}
+\end{figure}
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{invite_page.png}
+	\caption{Invitation page}
+	\label{fig:my_label}
+\end{figure}
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{invite_sent.png}
 	\caption{Viewing/accepting/declining invitations}
 	\label{fig:my_label}
 \end{figure}
-
-% TODO: UNCOMMENT ONCE BUGS ARE FIXED, ADD IMAGE OF INVITE SENDING PAGE
-%\begin{figure}[htbp]
-        %\centering
-        %\includegraphics[width=0.8\textwidth]{.png}
-	%\caption{Sending an invite}
-	%\label{fig:my_label}
-%\end{figure}
 
 \chapter{Viewing Group Details}
 
