@@ -125,7 +125,7 @@ In a group, there are three kinds of users. A user must have one, and only one, 
 	\item Readers
 \end{itemize}
 
-Each role comens with its own scope of actions. Readers can only view the details and tasks of a group. Contributors can do everything readers can do, along with inviting other users to the group as Readers, and creating tasks in the group. Admins can do everything Contributors can do, along with updating the group details.
+Each role comes with its own scope of actions. Readers can only view the details and tasks of a group. Contributors can do everything readers can do, along with inviting other users to the group as Readers, creating tasks in the group, and editing/deleting tasks. Admins can do everything Contributors can do, along with updating the group details.
 
 \chapter{Task Creation}
 
@@ -196,6 +196,29 @@ You can both search tasks by their title and filter tasks by the groups they bel
         \centering
 	\includegraphics[width=0.8\textwidth]{searched.png}
 	\caption{Searched tasks}
+	\label{fig:my_label}
+\end{figure}
+
+\chapter{Task Editing}
+
+To edit a task, you must either be a group admin or a contributor. Otherwise, your updates won't be recorded. To edit a task, simply click on the pen icon next to the task's name. You can change everything about a task except the group it's assigned to. Once you are done, submit, and the task will be updated
+
+\begin{figure}[htbp]
+        \centering
+	\includegraphics[width=0.8\textwidth]{edit_task.png}
+	\caption{Editing a task}
+	\label{fig:my_label}
+\end{figure}
+
+
+\chapter{Task Deletion}
+
+To delete a task, you must be an admin or a contributor. Otherwise, you won't be able to delete the task. To delete a task, simply click on the trash icon next to the task's name, and it will be deleted. You cannot undo this action.
+
+\begin{figure}[htbp]
+        \centering
+	\includegraphics[width=0.8\textwidth]{delete_task.png}
+	\caption{Deleting a task}
 	\label{fig:my_label}
 \end{figure}
 
