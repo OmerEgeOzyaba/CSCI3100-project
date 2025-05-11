@@ -4,6 +4,8 @@ from sqlalchemy import and_
 from datetime import datetime, timezone  # Add this import
 from middleware_data_classes import User  # Import User model
 from sqlalchemy.orm import joinedload
+from datetime import datetime, timezone
+from sqlalchemy import and_
 
 class MembershipService:
     def __init__(self):
@@ -73,7 +75,7 @@ class MembershipService:
             raise
         finally:
             session.close()
-
+            
     def accept_invitation(self, user_email, group_id):
         session = self.db.get_session()
         try:
@@ -89,7 +91,15 @@ class MembershipService:
             invite.status = InvitationStatus.ACCEPTED
             invite.join_date = datetime.now(timezone.utc)
             session.commit()
-            return invite
+            # Serialize the data before closing the session
+            membership_data = {
+                "user_id": invite.user_id,
+                "group_id": invite.group_id,
+                "role": invite.role.value,
+                "status": invite.status.value,
+                "join_date": invite.join_date.isoformat()
+            }
+            return membership_data
         except Exception as e:
             session.rollback()
             raise

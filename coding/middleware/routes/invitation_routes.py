@@ -53,16 +53,10 @@ def accept_invitation():
         return jsonify({"error": "Missing group_id"}), 400
     try:
         user_email = get_jwt_identity()
-        membership = membership_service.accept_invitation(user_email, request.json['group_id'])
+        membership_data = membership_service.accept_invitation(user_email, request.json['group_id'])
         return jsonify({
             "message": "Invitation accepted successfully",
-            "membership": {
-                "user_id": membership.user_id,
-                "group_id": membership.group_id,
-                "role": membership.role.value,
-                "status": membership.status.value,
-                "join_date": membership.join_date.isoformat()
-            }
+            "membership": membership_data
         })
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
