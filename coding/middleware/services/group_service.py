@@ -3,6 +3,8 @@ from middleware_data_classes import Group, Membership, Task, Role, InvitationSta
 from sqlalchemy import and_
 from datetime import datetime
 import random
+from sqlalchemy.orm import joinedload
+
 
 class GroupService:
     def __init__(self):
@@ -26,6 +28,7 @@ class GroupService:
     def get_group(self, user_email, group_id):
         session = self.db.get_session()
         try:
+            # Check if the user is a member of the group
             membership = session.query(Membership).filter(
                 and_(
                     Membership.user_id == user_email,
@@ -35,7 +38,8 @@ class GroupService:
             ).first()
             if not membership:
                 return None
-            group = session.query(Group).filter(Group.id == group_id).first()
+            # Fetch the group with its memberships eagerly loaded
+            group = session.query(Group).options(joinedload(Group.memberships)).filter(Group.id == group_id).first()
             return group
         finally:
             session.close()
