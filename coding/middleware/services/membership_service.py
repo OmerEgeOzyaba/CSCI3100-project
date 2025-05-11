@@ -3,23 +3,26 @@ from middleware_data_classes import Membership, Role, InvitationStatus
 from sqlalchemy import and_
 from datetime import datetime, timezone  # Add this import
 from middleware_data_classes import User  # Import User model
+from sqlalchemy.orm import joinedload
 
 class MembershipService:
     def __init__(self):
         self.db = Database()
 
     def get_invitations(self, user_email):
-        session = self.db.get_session()
-        try:
-            invitations = session.query(Membership).filter(
-                and_(
-                    Membership.user_id == user_email,
-                    Membership.status == InvitationStatus.SENT
-                )
-            ).all()
-            return invitations
-        finally:
-            session.close()
+            session = self.db.get_session()
+            try:
+                invitations = session.query(Membership).options(
+                    joinedload(Membership.group)  # Eager load the group relationship
+                ).filter(
+                    and_(
+                        Membership.user_id == user_email,
+                        Membership.status == InvitationStatus.SENT
+                    )
+                ).all()
+                return invitations
+            finally:
+                session.close()
 
     def send_invitation(self, inviter_email, member_email, group_id, role=Role.READER):
         session = self.db.get_session()
