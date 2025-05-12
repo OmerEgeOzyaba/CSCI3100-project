@@ -2,59 +2,52 @@
 {
   Title CULater
 
-  // Account Creation Page
     {^Account Creation Page
       Email    | "Enter your email"
       Password | "Set your password"
+      LicenseKey | "Input your license key"
       [Cancel] | [  Create   ]
     }
 
-  // Login Page
   {^Login Page
     Login    | "Enter your email"
     Password | "Enter your password"
     [Cancel] | [  Login   ]
   }
 
-  // Home Page
   {^Home Page
-    [Create Task] | [My Groups] | [View Invites]
-    + Feature 1: Create Tasks
-    + Feature 2: Create/Own Groups
-    + Feature 3: View Invites
-    + Feature 4: Assign Tasks to Groups
-    + Feature 5: View Tasks
+[Logout]
+    + Feature 1: Task Container
+[Add Task]
+    + Feature 2: Group Container
+[Add Group]
+    + Feature 3: Invite Container
   }
 
-  // Task Creation
   {^Task Creation
-    Title       | "Task Title"
+    TaskTitle       | "Task Title"
     Description | "Task Description"
     Due Date    | "Select due date"
-    [Create Task] | [Update Task]
+Group    | "Select group"
+    [Create Task] | [Cancel]
   }
 
-  // Group Creation
   {^Group Creation
     Group Name | "Enter group name"
-    [Create Group] | [Add Member]
+Description | "Enter description"
+    [Create Group] | [Cancel]
   }
 
-  // User Profile
-  {^User Profile
-    Username      | "YourUsername"
-    Email         | "youremail@example.com"
-    Profile Pic   | "Upload Profile Picture"
-    [Edit Profile] | [Reset Password]
+{^Task Groups
+    + Task 1: |[Edit] | [Delete]
+    + Task 2: |[Edit] | [Delete]
   }
 
-  // User Groups
   {^User Groups
-    + Group 1: | [View Members] | [Leave Group]
-    + Group 2: | [View Members] | [Leave Group]
+    + Group 1: |[Manage] | [View Members] | [Leave Group]
+    + Group 2: |[Manage] | [View Members] | [Leave Group]
   }
 
-  // Group Invitations
   {^Group Invitations
     + Invitation from Group A: | [Accept] | [Decline]
     + Invitation from Group B: | [Accept] | [Decline]

@@ -1,108 +1,127 @@
 @startuml
 
-class User {
+skinparam class {
+	BackgroundColor<<Entity>> #FFF5EE
+	BackgroundColor<<Service>> #F0F8FF
+	ArrowColor #444444
+	BorderColor<<Entity>> #FF8C00
+	BorderColor<<Service>> #4682B4
+}
+
+class User <<Entity>> {
 	- email: string
 	- password: string
 	- created_at: DateTime
 '-------------------------------
-	+ update_email()
-	+ update_password()
+	'+ update_email()
+	'+ update_password()
 }
 
-class UserService {
-        + create_user()
-        + update_email()
-        + update_password()
-        + reset_password()
-	+ enforce_password_policy()
+class UserService <<Service>> {
+	- db: Database
+'-------------------------------
+  	+ __init__()
+  	+ create_user(email: str, password: str, license_key: str) -> Tuple[Optional[User], str]
+  	- enforce_password_policy(password: str) -> Optional[str]
+  	- validate_email(email: str) -> bool
 }
 
-class Task {
-	- id: int
+class Task <<Entity>> {
+	- id: string
 	- title: string
 	- description: string
-	- group_id: int
+	- group_id: string
 	- created_at: DateTime
 	- due_date: DateTime
 	- status: boolean
 '--------------------------------
-	+ update_title()
-	+ update_description()
-	+ update_due_date()
-	+ update_status()
+	'+ update_title()
+	'+ update_description()
+	'+ update_due_date()
+	'+ update_status()
 }
 
-class TaskService {
-        + create_task()
-        + update_task()
-        + complete_task()
-        + delete_task()
-	+ get_tasks_by_group(group_id: int): List<Task>
+class TaskService <<Service>> {
+	- db: Database
+'--------------------------------
+  	+ __init__()
+  	+ get_tasks_for_user(user_email: str) -> List[Task]
+  	+ get_tasks_for_group(user_email: str, group_id: str) -> List[Task]
+  	+ get_task(user_email: str, task_id: str) -> Optional[Task]
+  	+ create_task(user_email: str, title: str, description: str, group_id: str, due_date: datetime) -> Task
+  	+ update_task(user_email: str, task_id: str, title: Optional[str], description: Optional[str], due_date: Optional[datetime], status: Optional[bool]) -> Task
+  	+ delete_task(user_email: str, task_id: str)
 }
 
-class Group {
+class Group <<Entity>> {
 	- id: int
 	- name: string
 	- description: string
 	- created_at: DateTime
 '---------------------------------
-	+ update_name()
-	+ update_description()
+	'+ update_name()
+	'+ update_description()
 }
 
-class GroupService {
-	+ create_group()
-	+ update_group()
-	+ delete_group()
+class GroupService <<Service>> {
+	- db: Database
+'---------------------------------
+  	+ __init__()
+  	+ get_groups(user_email: str) -> List[Group]
+  	+ get_group(user_email: str, group_id: str) -> Optional[Group]
+  	+ create_group(user_email: str, name: str, description: str) -> Group
+  	+ update_group(user_email: str, group_id: str, name: Optional[str], description: Optional[str]) -> Group
+  	+ leave_group(user_email: str, group_id: str)
 }
 
-class Membership {
-	- user: User
-	- group: Group
+class Membership <<Entity>> {
+	- user_id: str
+	- group_id: str
 	- role: Role
 	- inviter_email: string
 	- invite_date: DateTime
 	- status: InvitationStatus
 	- join_date: DateTime
 '---------------------------------
-	+ update_status()
+	'+ update_status()
 }
 
-class MembershipService {
-	+ create_membership()
-	+ send_invitation()
-	+ accept_invitation()
-	+ reject_invitation()
-        + get_members_by_group(group: Group): List<Membership>
-
-}
-
-class AuthService {
-	- auth_token: string
+class MembershipService <<Service>> {
+	- db: Database
 '---------------------------------
-	+ login()
-	+ logout()
-	+ authenticate_user()
-	+ generate_token()
-	+ validate_token()
-	+ hash_password()
+  	+ __init__()
+  	+ get_invitations(user_email: str) -> List[Membership]
+  	+ send_invitation(inviter_email: str, member_email: str, group_id: str, role: Role) -> Dict
+  	+ accept_invitation(user_email: str, group_id: str) -> Membership
+  	+ decline_invitation(user_email: str, group_id: str)
 }
 
-class SoftwareLicense {
+class AuthService <<Service>> {
+	- redis: redis.Redis
+	- db: Database
+'---------------------------------
+	+ __init__(redis_conn: redis.Redis)
+	+ login(email: str, password: str) -> Tuple[Optional[str], Optional[str]]
+  	+ logout(jti: str) -> bool
+  	+ verify_token(token: str) -> bool
+	+ get_current_user() -> Optional[User]
+}
+
+class SoftwareLicense <<Entity>> {
 	- key: string
 	- created_at: DateTime
 	- used_status: int
 '---------------------------------
-	+ create_license(userEmail: string)
-	+ validate_license(key: string)
-	+ update_license_status()
+	'+ create_license(userEmail: string)
+	'+ validate_license(key: string)
+	'+ update_license_status()
 }
 
-class SoftwareLicenseService {
-	+ save_license()
-	+ update_licenseStatus()
-	+ get_license()
-}
+'class SoftwareLicenseService {
+	'+ save_license()
+	'+ update_licenseStatus()
+	'+ get_license()
+'}
 
 enum Role {
         ADMIN
@@ -135,6 +154,6 @@ Role --> Membership: assigned
 InvitationStatus --> Membership: assigned
 
 UserService --> SoftwareLicense: creates User via
-SoftwareLicenseService --> SoftwareLicense: manages
+'SoftwareLicenseService --> SoftwareLicense: manages
 
 @enduml

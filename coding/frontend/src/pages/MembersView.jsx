@@ -16,7 +16,11 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
-  Alert
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { Person as PersonIcon, Add as AddIcon } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -34,6 +38,7 @@ const MembersPage = () => {
   const [loading, setLoading] = useState(true);
   const [openInviteDialog, setOpenInviteDialog] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('reader');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -69,6 +74,7 @@ const MembersPage = () => {
 
   const handleOpenInviteDialog = () => {
     setInviteEmail('');
+    setInviteRole('reader');
     setOpenInviteDialog(true);
   };
 
@@ -88,7 +94,7 @@ const MembersPage = () => {
 
     setInviteLoading(true);
     try {
-      await sendInvitation(inviteEmail, groupId);
+      await sendInvitation(inviteEmail, groupId, inviteRole);
       setOpenInviteDialog(false);
       setSnackbar({
         open: true,
@@ -176,7 +182,22 @@ const MembersPage = () => {
             variant="outlined"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
+            sx={{ mb: 2 }}
           />
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="role-select-label">Role</InputLabel>
+            <Select
+              labelId="role-select-label"
+              id="role"
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value)}
+              label="Role"
+            >
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="contributor">Contributor</MenuItem>
+              <MenuItem value="reader">Reader</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseInviteDialog} disabled={inviteLoading}>Cancel</Button>
