@@ -20,6 +20,7 @@ Final remarks and summary of running CuLater:
 3. Run the frontend (npm install + npm run dev) {dir: code_groupA1\coding\frontend\README}
 4. Sign up an account 
     4.1 Generate license key (in this case: iamakey123) by using command: 
+    psql -h localhost -p 5432 -W -U postgres #password 口令 is culater
     INSERT INTO "SoftwareLicenses" (key, created_at, used_status) VALUES ('iamakey123', CURRENT_TIMESTAMP, false);
     4.2 sign up
 5. Thank you for your time.
